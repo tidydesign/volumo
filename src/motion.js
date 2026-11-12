@@ -10,6 +10,12 @@ export const DURATION = {
   slow: 0.7,
 }
 
+// Hover reveals (toolbar labels): mirrors --ease-out / --duration-hover in tokens.css
+export const HOVER = {
+  ease: 'ease-out',
+  duration: 0.3,
+}
+
 export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 export const prefersReducedMotion = () => window.matchMedia(REDUCED_MOTION_QUERY).matches

@@ -14,7 +14,20 @@ const prototypes = Object.fromEntries(
     .filter(([, file]) => existsSync(file)),
 )
 
+// Short URLs: /<name> serves prototypes/<name>/ (same as the rewrite in vercel.json).
+const shortUrls = {
+  name: 'prototype-short-urls',
+  configureServer(server) {
+    server.middlewares.use((req, _res, next) => {
+      const match = req.url.match(/^\/([\w-]+)\/?(\?.*)?$/)
+      if (match && match[1] in prototypes) req.url = `/prototypes/${match[1]}/${match[2] ?? ''}`
+      next()
+    })
+  },
+}
+
 export default defineConfig({
+  plugins: [shortUrls],
   build: {
     rollupOptions: {
       input: {

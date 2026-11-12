@@ -1,0 +1,1201 @@
+/*
+  Responsive navigation — Volumo UI 2.0
+  Mobile-first. Breakpoints: Tablet ≥480, Laptop ≥835, Desktop ≥1281.
+  Mobile/Tablet: header with catalog icon + floating tab bar.
+  Laptop: header with links + floating icon toolbar.
+  Desktop: header with links + personal sidebar.
+*/
+
+.rn {
+  --rn-dock-space: 152px; /* room under the content for the floating dock */
+
+  font-family: var(--vl-font-family);
+  font-size: var(--vl-text-main-size);
+  line-height: var(--vl-text-main-line);
+  font-weight: var(--vl-font-weight-medium);
+  color: var(--vl-content-main);
+  background-color: var(--vl-bg-main);
+}
+
+.rn a {
+  text-decoration: none;
+}
+
+:where(.rn) button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.rn ul {
+  list-style: none;
+}
+
+.rn img {
+  flex-shrink: 0;
+}
+
+/* Shared bits */
+
+.icon-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.icon-btn:hover,
+.header__nav-link:hover,
+.header__search:hover,
+.sidebar__link:hover,
+.playlist:hover,
+.tabbar__item:hover,
+.release__link:hover {
+  opacity: 0.72;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-basic-grey);
+}
+
+.floating {
+  display: flex;
+  align-items: center;
+  border-radius: var(--vl-radius-pill);
+  background-color: var(--vl-bg-secondary);
+  box-shadow: var(--vl-shadow-floating), var(--vl-shadow-floating-inset);
+}
+
+/* ───────── Header ───────── */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--vl-header-height);
+  background-color: var(--vl-bg-secondary);
+  border-bottom: 1px solid var(--vl-outline-secondary);
+}
+
+.header__inner {
+  display: flex;
+  height: 100%;
+  max-width: var(--vl-container-max);
+  margin: 0 auto;
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 var(--vl-pad-big);
+  border-right: 1px solid var(--vl-outline-secondary);
+}
+
+.header__logo {
+  width: 104px;
+  height: 24px;
+}
+
+.header__main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--vl-pad-extra-large);
+  min-width: 0;
+  padding-left: var(--vl-pad-big);
+}
+
+.header__nav {
+  display: none;
+}
+
+.header__nav-list {
+  display: flex;
+  gap: var(--vl-pad-extra-large);
+}
+
+.header__nav-link {
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.header__search {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-small);
+  margin-left: auto;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.header__search-label {
+  display: none;
+  white-space: nowrap;
+}
+
+.header__user {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--vl-pad-tiny);
+  padding: 0 var(--vl-pad-big) 0 var(--vl-pad-large);
+}
+
+.header__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--vl-radius-round);
+  object-fit: cover;
+}
+
+.header__user-info {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.header__user-balance {
+  color: var(--vl-content-secondary);
+}
+
+/* ───────── Layout ───────── */
+
+.layout {
+  max-width: var(--vl-container-max);
+  margin: 0 auto;
+}
+
+.layout__content {
+  min-width: 0;
+  padding-bottom: var(--rn-dock-space);
+}
+
+.sidebar {
+  display: none;
+}
+
+/* ───────── Release ───────── */
+
+.release {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-large);
+  margin: 0 var(--vl-pad-big);
+  padding: var(--vl-pad-big) 0 var(--vl-pad-medium);
+  border-bottom: 1px solid var(--vl-outline-main);
+}
+
+.release__cover {
+  width: 100%;
+  max-width: 156px;
+  aspect-ratio: 1;
+}
+
+.release__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.release__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.release__head {
+  margin-bottom: var(--vl-pad-small);
+}
+
+.release__title {
+  font-size: var(--vl-title-h3-size);
+  line-height: var(--vl-title-h3-line);
+  font-weight: var(--vl-font-weight-semibold);
+}
+
+.release__title span {
+  margin-left: 4px;
+}
+
+/* On mobile/tablet the share button sits in the top-right corner, next to the cover */
+.release__marks {
+  position: absolute;
+  top: var(--vl-pad-big);
+  right: 0;
+}
+
+.release__award {
+  display: none;
+}
+
+.release__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  color: var(--vl-content-secondary);
+}
+
+.release__link {
+  color: var(--vl-action-light);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.release__credits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--vl-pad-big);
+  margin-top: var(--vl-pad-big);
+}
+
+.release__credit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-point);
+}
+
+.release__label {
+  color: var(--vl-content-secondary);
+}
+
+.release__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--vl-pad-tiny);
+}
+
+.release__tracklist {
+  margin-top: var(--vl-pad-medium);
+  border-top: 1px solid var(--vl-outline-main);
+}
+
+.release__options {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-big);
+  padding: var(--vl-pad-tiny) 0;
+  border-bottom: 1px solid var(--vl-outline-main);
+  color: var(--vl-action-neutral);
+}
+
+.release__count {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.release__save {
+  display: none;
+  color: var(--vl-action-neutral);
+  white-space: nowrap;
+}
+
+.release__tracks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-medium);
+  padding: var(--vl-pad-tiny) 0;
+}
+
+/* Track row */
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-medium);
+  min-height: var(--vl-small-button-height);
+}
+
+.track__main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.track__play {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--vl-small-button-height);
+  height: var(--vl-small-button-height);
+  border-radius: var(--vl-radius-pill);
+  background-color: var(--vl-action-light);
+}
+
+.track__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.track__title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.track__title span {
+  margin-left: 4px;
+}
+
+.track__artist,
+.track__details {
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-action-neutral);
+}
+
+.track__genre {
+  display: none;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.track__details {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+}
+
+.track__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Buy buttons */
+
+.buy {
+  display: none;
+  gap: var(--vl-pad-point);
+}
+
+.buy__group {
+  display: flex;
+  gap: 1px;
+}
+
+.buy__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-point);
+  height: var(--vl-small-button-height);
+  padding: var(--vl-pad-point) 12px var(--vl-pad-point) var(--vl-pad-tiny);
+  background-color: var(--vl-action-black);
+  color: var(--vl-action-light);
+  white-space: nowrap;
+}
+
+.buy__btn--price {
+  width: 80px;
+}
+
+.buy__btn--icon {
+  padding: var(--vl-pad-point);
+}
+
+.buy-compact {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background-color: var(--vl-action-black);
+}
+
+.buy-compact__btn {
+  display: flex;
+  padding: var(--vl-pad-point);
+}
+
+.buy-compact__btn + .buy-compact__btn::before {
+  content: "";
+  align-self: center;
+  width: 1px;
+  height: 12px;
+  margin: 0 5px 0 -5px;
+  background-color: var(--vl-outline-action);
+}
+
+/* ───────── Dock (floating bottom controls) ───────── */
+
+.dock {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  pointer-events: none;
+  /* Fixed to the viewport, so 100cqw = page width without the scrollbar.
+     Used to size the mini player from the release cover width. */
+  container-type: inline-size;
+}
+
+.dock__inner {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  grid-template-areas:
+    "player filters volume"
+    "tabbar tabbar tabbar";
+  align-items: center;
+  row-gap: var(--vl-pad-tiny);
+  max-width: var(--vl-container-max);
+  margin: 0 auto;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+.dock__inner > * {
+  pointer-events: auto;
+}
+
+/*
+  Hide on scroll (laptop, tablet, mobile).
+  Scrolling down (.dock.is-nav-hidden): the navigation panel slides off-screen
+  and Filters drops into the row with the player and volume. Scrolling up brings
+  it all back. Uses the `translate` property so it composes with Filters' :active scale.
+  Drop distances per breakpoint live in --rn-filters-drop / --rn-side-drop.
+*/
+.dock__inner {
+  --rn-dock-button: 44px;
+  --rn-tabbar-height: 56px;
+  --rn-nav-offscreen: calc(100% + 48px); /* clears the bottom inset and the shadow */
+
+  /* Mobile: player, Filters and volume already share a row — the whole row drops into the tab bar's place */
+  --rn-filters-drop: calc(var(--rn-tabbar-height) + var(--vl-pad-tiny));
+  --rn-side-drop: var(--rn-filters-drop);
+}
+
+.player,
+.dock__volume,
+.toolbar,
+.tabbar-wrap {
+  transition: translate var(--duration-base) var(--ease-default);
+}
+
+.dock.is-nav-hidden .toolbar,
+.dock.is-nav-hidden .tabbar-wrap {
+  translate: 0 var(--rn-nav-offscreen);
+}
+
+.dock.is-nav-hidden .filters {
+  translate: 0 var(--rn-filters-drop);
+}
+
+.dock.is-nav-hidden .player,
+.dock.is-nav-hidden .dock__volume {
+  translate: 0 var(--rn-side-drop);
+}
+
+/* Player: round button on mobile/tablet, pill with track on laptop/desktop */
+.player {
+  grid-area: player;
+  justify-content: center;
+  gap: var(--vl-pad-tiny);
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+}
+
+.player__cover,
+.player__title {
+  display: none;
+}
+
+.player__cover {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.player__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: left;
+  -webkit-mask-image: linear-gradient(to right, #000 80%, transparent);
+  mask-image: linear-gradient(to right, #000 80%, transparent);
+}
+
+.dock__volume {
+  grid-area: volume;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+/* Filters */
+
+.filters {
+  grid-area: filters;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-big);
+  height: 44px;
+  padding: 12px 12px 12px 16px;
+  border-radius: 64px;
+  background-image: linear-gradient(to bottom, var(--vl-action-primary), var(--vl-action-primary-translucent));
+  -webkit-backdrop-filter: blur(var(--vl-blur-primary));
+  backdrop-filter: blur(var(--vl-blur-primary));
+  box-shadow: var(--vl-shadow-primary-inset);
+  font-weight: var(--vl-font-weight-semibold);
+  color: var(--vl-basic-white);
+  transition:
+    transform var(--duration-fast) var(--ease-default),
+    translate var(--duration-base) var(--ease-default);
+}
+
+.filters:active {
+  transform: scale(0.96);
+}
+
+.filters__label {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+}
+
+.filters__count {
+  padding: 4px 12px;
+  border-radius: 24px;
+  background-color: var(--vl-action-primary-pressed);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+}
+
+/* Tab bar (mobile + tablet) */
+
+.tabbar-wrap {
+  position: relative;
+  grid-area: tabbar;
+}
+
+.tabbar {
+  display: flex;
+  height: 56px;
+  overflow: hidden;
+}
+
+/* "More" popover: the sidebar items that don't fit in the tab bar */
+.more {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--vl-pad-tiny));
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: var(--vl-pad-point);
+  border-radius: 24px;
+  background-color: var(--vl-bg-secondary);
+  box-shadow: var(--vl-shadow-floating), var(--vl-shadow-floating-inset);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transform-origin: bottom right;
+  transition:
+    opacity var(--duration-fast) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default),
+    visibility 0s linear var(--duration-fast);
+}
+
+.tabbar-wrap.is-open .more {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity var(--duration-fast) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
+}
+
+.more__item {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  height: 44px;
+  padding: 0 12px;
+  font-weight: var(--vl-font-weight-semibold);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.more__item:hover {
+  opacity: 0.72;
+}
+
+.tabbar-wrap.is-open [data-more-toggle] {
+  opacity: 0.72;
+}
+
+.tabbar__item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-point);
+  height: 48px;
+  margin: 4px;
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  font-weight: var(--vl-font-weight-semibold);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+/* Toolbar + controls (laptop) */
+
+.toolbar,
+.controls {
+  display: none;
+}
+
+/*
+  No gaps between items: the 24px spacing is the items' own padding (12 + 12),
+  so the pointer goes straight from one item to the next. Otherwise every gap
+  is a dead zone where all labels collapse and all icons flash back to white.
+*/
+.toolbar {
+  grid-area: toolbar;
+  height: 44px;
+  padding: 0 var(--vl-pad-point);
+}
+
+.toolbar__item {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 12px;
+  transition: opacity var(--duration-hover) var(--ease-out);
+}
+
+/*
+  Label reveal: the wrapper grows from 0 to the text width (grid 0fr → 1fr),
+  the text slides in from the left and fades in. Width animation is an
+  intentional exception to the transform/opacity rule — neighbours must move.
+*/
+.toolbar__label {
+  display: grid;
+  grid-template-columns: 0fr;
+  margin-left: 0;
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  font-weight: var(--vl-font-weight-semibold);
+  white-space: nowrap;
+  transition:
+    grid-template-columns var(--duration-hover) var(--ease-out),
+    margin-left var(--duration-hover) var(--ease-out);
+}
+
+.toolbar__label-text {
+  min-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    opacity var(--duration-hover) var(--ease-out),
+    transform var(--duration-hover) var(--ease-out);
+}
+
+.toolbar__item:hover .toolbar__label,
+.toolbar__item:focus-visible .toolbar__label {
+  grid-template-columns: 1fr;
+  margin-left: var(--vl-pad-tiny);
+}
+
+.toolbar__item:hover .toolbar__label-text,
+.toolbar__item:focus-visible .toolbar__label-text {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hovered item stays white, the rest fade to grey */
+.toolbar:has(.toolbar__item:is(:hover, :focus-visible)) .toolbar__item:not(:hover, :focus-visible) {
+  opacity: var(--opacity-muted);
+}
+
+.controls {
+  grid-area: controls;
+  justify-self: end;
+  gap: var(--vl-pad-large);
+  height: 44px;
+  padding: 12px 16px;
+}
+
+/* ───────── Sidebar (desktop) ───────── */
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-point);
+  padding: 12px;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 12px;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.sidebar__link-label {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  padding: 4px 12px;
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-dark);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+}
+
+.pill--cart {
+  padding-left: 4px;
+}
+
+.pill__badge {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 16px;
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-bg-secondary);
+  color: var(--vl-content-secondary);
+}
+
+.sidebar__playlists {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 24px;
+}
+
+.sidebar__playlists-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: var(--vl-pad-tiny);
+  border-bottom: 1px solid var(--vl-outline-secondary);
+}
+
+.sidebar__playlists-title {
+  flex: 1;
+  font: inherit;
+  color: var(--vl-content-secondary);
+}
+
+.sidebar__playlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-big);
+  padding-top: var(--vl-pad-big);
+}
+
+.playlist {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.playlist__cover {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+
+.playlist__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-point);
+  min-width: 0;
+}
+
+.playlist__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+}
+
+.playlist__meta .dot {
+  background-color: var(--vl-bg-neutral);
+}
+
+.sidebar__feedback {
+  padding: 24px;
+}
+
+.feedback-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-tiny);
+  height: 48px;
+  padding: 16px 24px 16px 16px;
+  background-color: var(--vl-action-black);
+  font-weight: var(--vl-font-weight-semibold);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.feedback-btn:hover {
+  opacity: 0.72;
+}
+
+.sidebar__settings {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 60px;
+  padding: 0 24px;
+  border-top: 1px solid var(--vl-outline-main);
+}
+
+.volume-bar {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  height: 4px;
+}
+
+.volume-bar__level {
+  flex: 1;
+  background-color: var(--vl-action-neutral);
+}
+
+.volume-bar__rest {
+  width: 48px;
+  background-color: var(--vl-action-dark-hover);
+}
+
+.sidebar__settings-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ═════════ Tablet ≥480 ═════════ */
+
+@media (min-width: 480px) {
+  .rn {
+    --rn-dock-space: 148px;
+  }
+
+  .release__cover {
+    max-width: 172px;
+  }
+
+  .release__credits {
+    gap: var(--vl-pad-large);
+  }
+
+  /* Track: title | genre | actions */
+  .track {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: var(--vl-pad-large);
+  }
+
+  .track__genre {
+    display: flex;
+  }
+
+  .dock__inner {
+    grid-template-areas:
+      ". filters ."
+      "player tabbar volume";
+    row-gap: 12px;
+    padding: 0 18px calc(12px + env(safe-area-inset-bottom));
+
+    /* Filters drops from its own row to the centre line of the player/volume row */
+    --rn-filters-drop: calc(var(--rn-dock-button) / 2 + 12px + var(--rn-tabbar-height) / 2);
+    --rn-side-drop: 0px;
+  }
+
+  .tabbar-wrap {
+    justify-self: center;
+    width: 360px;
+  }
+}
+
+/* ═════════ Laptop ≥835 ═════════ */
+
+@media (min-width: 835px) {
+  .rn {
+    --rn-dock-space: 124px;
+  }
+
+  /* Header: links instead of the catalog icon */
+  .header__brand {
+    width: 136px;
+  }
+
+  .header__catalog {
+    display: none;
+  }
+
+  .header__nav {
+    display: block;
+  }
+
+  /* Release: same as desktop — cover 2 / info 6 of an 8-column grid, 48px gutter.
+     Laptop: divider inset 16, content inset 24. */
+  .release {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: var(--vl-grid-gutter);
+    margin: 0 var(--vl-pad-big);
+    padding: var(--vl-pad-large) var(--vl-pad-tiny);
+  }
+
+  .release__cover {
+    grid-column: 1 / span 2;
+    max-width: none;
+  }
+
+  .release__body {
+    grid-column: 3 / span 6;
+  }
+
+  .release__head {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--vl-grid-gutter);
+    margin-bottom: 12px;
+  }
+
+  .release__title {
+    grid-column: 1 / span 4;
+  }
+
+  .release__marks {
+    position: static;
+    grid-column: 5 / span 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .release__award {
+    display: flex;
+    padding: 4px;
+    border-radius: var(--vl-radius-round);
+    background-color: var(--vl-action-black);
+  }
+
+  .release__credits {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--vl-grid-gutter);
+    margin-top: 24px;
+  }
+
+  .release__tracklist {
+    margin-top: 12px;
+  }
+
+  /* Options + tracks share a 6-column grid */
+  .release__options,
+  .track {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--vl-grid-gutter);
+  }
+
+  .release__options {
+    min-height: 44px;
+    padding: 8px 0;
+  }
+
+  .release__count {
+    grid-column: 1 / span 2;
+  }
+
+  .release__save {
+    display: block;
+    grid-column: 3;
+  }
+
+  .release__actions {
+    grid-column: 4 / span 3;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .release__tracks {
+    gap: 16px;
+  }
+
+  .track__main {
+    grid-column: 1 / span 2;
+  }
+
+  .track__genre {
+    grid-column: 3 / span 2;
+  }
+
+  .track__actions {
+    grid-column: 5 / span 2;
+  }
+
+  .buy {
+    display: flex;
+  }
+
+  .buy-compact {
+    display: none;
+  }
+
+  /* Dock: player | toolbar | controls */
+  .dock__inner {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas:
+      ". filters ."
+      "player toolbar controls";
+    padding: 0 12px calc(12px + env(safe-area-inset-bottom));
+
+    /* Filters drops one row (44px + 12px gap) into the toolbar's place */
+    --rn-filters-drop: calc(var(--rn-dock-button) + 12px);
+    --rn-side-drop: 0px;
+
+    /*
+      Mini player = release cover + 12px on each side.
+      Cover = 2 of 8 grid columns: (content - 7 gutters) / 8 * 2 + 1 gutter.
+      Laptop release content = page - 16px divider inset - 8px extra inset, both sides.
+    */
+    --rn-player-overhang: 12px;
+    --rn-release-content: calc(100cqw - 2 * var(--vl-pad-big) - 2 * var(--vl-pad-tiny));
+    --rn-cover: calc((var(--rn-release-content) - 7 * var(--vl-grid-gutter)) / 4 + var(--vl-grid-gutter));
+  }
+
+  .player {
+    justify-self: start;
+    justify-content: flex-start;
+    width: calc(var(--rn-cover) + 2 * var(--rn-player-overhang));
+    padding: 12px;
+  }
+
+  .player__cover,
+  .player__title {
+    display: block;
+  }
+
+  .dock__volume,
+  .tabbar-wrap {
+    display: none;
+  }
+
+  .toolbar,
+  .controls {
+    display: flex;
+  }
+}
+
+/* ═════════ Desktop ≥1281 ═════════ */
+
+@media (min-width: 1281px) {
+  .rn {
+    --rn-dock-space: 68px;
+  }
+
+  /* Header: logo | links + search | user (aligned with the sidebar) */
+  .header__inner {
+    border-left: 1px solid var(--vl-outline-secondary);
+  }
+
+  .header__brand {
+    width: auto;
+  }
+
+  .header__logo {
+    width: 86.667px;
+    height: 20px;
+  }
+
+  .header__main {
+    padding: 0 var(--vl-pad-big);
+    border-right: 1px solid var(--vl-outline-secondary);
+  }
+
+  .header__search {
+    gap: 12px;
+  }
+
+  .header__search-label {
+    display: inline;
+  }
+
+  .header__user {
+    width: var(--vl-sidebar-width);
+    gap: 16px;
+    padding: 0 var(--vl-pad-big);
+    border-right: 1px solid var(--vl-outline-secondary);
+  }
+
+  .header__user-info {
+    display: flex;
+  }
+
+  /* Content + sidebar */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--vl-sidebar-width);
+    border-right: 1px solid var(--vl-outline-secondary);
+    border-left: 1px solid var(--vl-outline-secondary);
+  }
+
+  /* Desktop: divider and content both inset 24 */
+  .release {
+    margin: 0 var(--vl-pad-big);
+    padding: var(--vl-pad-large) 0;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: var(--vl-header-height);
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--vl-header-height));
+    border-left: 1px solid var(--vl-outline-secondary);
+  }
+
+  /* Dock: only the player and filters, inside the content column */
+  .dock__inner {
+    grid-template-columns: 1fr auto 1fr var(--vl-sidebar-width);
+    grid-template-areas: "player filters . .";
+    /* 1px container border + 24px release inset - 12px overhang */
+    padding: 0 0 calc(12px + env(safe-area-inset-bottom)) calc(1px + var(--vl-pad-big) - var(--rn-player-overhang));
+
+    /* Desktop release content = container - 2 borders - sidebar - 24px inset both sides */
+    --rn-release-content: calc(
+      min(100cqw, var(--vl-container-max)) - 2px - var(--vl-sidebar-width) - 2 * var(--vl-pad-big)
+    );
+
+    /* Navigation lives in the sidebar here: nothing moves on scroll */
+    --rn-filters-drop: 0px;
+    --rn-side-drop: 0px;
+  }
+
+  .toolbar,
+  .controls {
+    display: none;
+  }
+}

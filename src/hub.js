@@ -17,7 +17,7 @@ for (const name of pages) {
   item.className = 'hub__item'
   const link = document.createElement('a')
   link.className = 'hub__link'
-  link.href = `/prototypes/${name}/`
+  link.href = `/${name}`
   link.textContent = name.replace(/-/g, ' ')
   item.append(link)
   list.append(item)

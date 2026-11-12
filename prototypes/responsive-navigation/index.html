@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <title>Volumo — Responsive Navigation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="rn">
+    <header class="header">
+      <div class="header__inner">
+        <a class="header__brand" href="#" aria-label="Volumo home">
+          <img class="header__logo" src="/prototypes/responsive-navigation/assets/logo.svg" alt="Volumo" width="104" height="24" />
+        </a>
+
+        <div class="header__main">
+          <button class="icon-btn header__catalog" type="button" aria-label="Catalog">
+            <img src="/prototypes/responsive-navigation/assets/chocolate.svg" alt="" width="20" height="20" />
+          </button>
+
+          <nav class="header__nav" aria-label="Catalog">
+            <ul class="header__nav-list">
+              <li><a class="header__nav-link" href="#">Genres</a></li>
+              <li><a class="header__nav-link" href="#">Exclusives</a></li>
+              <li><a class="header__nav-link" href="#">Releases</a></li>
+              <li><a class="header__nav-link" href="#">Preorders</a></li>
+              <li><a class="header__nav-link" href="#">Charts</a></li>
+              <li><a class="header__nav-link" href="#">Artists</a></li>
+              <li><a class="header__nav-link" href="#">Labels</a></li>
+            </ul>
+          </nav>
+
+          <button class="header__search" type="button" aria-label="Search">
+            <img src="/prototypes/responsive-navigation/assets/search.svg" alt="" width="20" height="20" />
+            <span class="header__search-label">Search...</span>
+          </button>
+        </div>
+
+        <div class="header__user">
+          <img class="header__avatar" src="/prototypes/responsive-navigation/assets/avatar.png" alt="" width="32" height="32" />
+          <div class="header__user-info">
+            <span class="header__user-name">Marcus Vaccaro</span>
+            <span class="header__user-balance">€12.81</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="Menu">
+            <img src="/prototypes/responsive-navigation/assets/burger.svg" alt="" width="20" height="20" />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <main class="layout__content" data-releases></main>
+
+      <aside class="sidebar" aria-label="Personal">
+        <nav class="sidebar__nav" aria-label="Personal">
+          <a class="sidebar__link" href="#">
+            <span class="sidebar__link-label">
+              <img src="/prototypes/responsive-navigation/assets/cart.svg" alt="" width="20" height="20" />My Cart
+            </span>
+            <span class="pill pill--cart"><span class="pill__badge">0</span>€0.00</span>
+          </a>
+          <a class="sidebar__link" href="#">
+            <span class="sidebar__link-label">
+              <img src="/prototypes/responsive-navigation/assets/download.svg" alt="" width="20" height="20" />My Downloads
+            </span>
+            <span class="pill">0</span>
+          </a>
+          <a class="sidebar__link" href="#">
+            <span class="sidebar__link-label">
+              <img src="/prototypes/responsive-navigation/assets/feed.svg" alt="" width="20" height="20" />My Feed
+            </span>
+          </a>
+          <a class="sidebar__link" href="#">
+            <span class="sidebar__link-label">
+              <img src="/prototypes/responsive-navigation/assets/music.svg" alt="" width="20" height="20" />My Playlists
+            </span>
+          </a>
+          <a class="sidebar__link" href="#">
+            <span class="sidebar__link-label">
+              <img src="/prototypes/responsive-navigation/assets/chart.svg" alt="" width="20" height="20" />My Charts
+            </span>
+          </a>
+          <a class="sidebar__link" href="#">
+            <span class="sidebar__link-label">
+              <img src="/prototypes/responsive-navigation/assets/followings.svg" alt="" width="20" height="20" />My Followings
+            </span>
+          </a>
+        </nav>
+
+        <section class="sidebar__playlists" aria-label="My playlists">
+          <div class="sidebar__playlists-head">
+            <h2 class="sidebar__playlists-title">My playlists</h2>
+            <button class="icon-btn" type="button" aria-label="New playlist">
+              <img src="/prototypes/responsive-navigation/assets/plus.svg" alt="" width="20" height="20" />
+            </button>
+          </div>
+          <ul class="sidebar__playlist-list">
+            <li>
+              <a class="playlist" href="#">
+                <img class="playlist__cover" src="/prototypes/responsive-navigation/assets/playlist-1.jpg" alt="" width="36" height="36" />
+                <span class="playlist__info">
+                  <span class="playlist__title">The Best of 2022</span>
+                  <span class="playlist__meta">28 Tracks<i class="dot"></i>€55.22</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="playlist" href="#">
+                <img class="playlist__cover" src="/prototypes/responsive-navigation/assets/playlist-2.jpg" alt="" width="36" height="36" />
+                <span class="playlist__info">
+                  <span class="playlist__title">Trance Top Artists</span>
+                  <span class="playlist__meta">39 Tracks<i class="dot"></i>€64.24</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="playlist" href="#">
+                <img class="playlist__cover" src="/prototypes/responsive-navigation/assets/playlist-3.jpg" alt="" width="36" height="36" />
+                <span class="playlist__info">
+                  <span class="playlist__title">Chillout Mix</span>
+                  <span class="playlist__meta">153 Tracks<i class="dot"></i>€170.92</span>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </section>
+
+        <div class="sidebar__feedback">
+          <a class="feedback-btn" href="#">
+            <img src="/prototypes/responsive-navigation/assets/feedback.svg" alt="" width="20" height="20" />Share feedback
+          </a>
+        </div>
+
+        <div class="sidebar__settings">
+          <img src="/prototypes/responsive-navigation/assets/sb-volume.svg" alt="" width="20" height="20" />
+          <span class="volume-bar" role="presentation"><span class="volume-bar__level"></span><span class="volume-bar__rest"></span></span>
+          <span class="sidebar__settings-actions">
+            <button class="icon-btn" type="button" aria-label="Keyboard shortcuts">
+              <img src="/prototypes/responsive-navigation/assets/sb-keyboard.svg" alt="" width="20" height="20" />
+            </button>
+            <button class="icon-btn" type="button" aria-label="Settings">
+              <img src="/prototypes/responsive-navigation/assets/sb-settings.svg" alt="" width="20" height="20" />
+            </button>
+            <button class="icon-btn" type="button" aria-label="Share">
+              <img src="/prototypes/responsive-navigation/assets/share.svg" alt="" width="20" height="20" />
+            </button>
+          </span>
+        </div>
+      </aside>
+    </div>
+
+    <div class="dock">
+      <div class="dock__inner">
+        <button class="floating player" type="button" aria-label="Now playing: Pretty Girl - Higher (Extended Mix)">
+          <img src="/prototypes/responsive-navigation/assets/soundwave.svg" alt="" width="20" height="20" />
+          <img class="player__cover" src="/prototypes/responsive-navigation/assets/cover-1.jpg" alt="" width="20" height="20" />
+          <span class="player__title">Pretty Girl - Higher (Extended Mix)</span>
+        </button>
+
+        <button class="filters" type="button">
+          <span class="filters__label">
+            <img src="/prototypes/responsive-navigation/assets/filter.svg" alt="" width="20" height="20" />Filters
+          </span>
+          <span class="filters__count">0</span>
+        </button>
+
+        <button class="floating dock__volume" type="button" aria-label="Volume">
+          <img src="/prototypes/responsive-navigation/assets/volume.svg" alt="" width="20" height="20" />
+        </button>
+
+        <nav class="floating toolbar" aria-label="Personal">
+          <a class="toolbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/cart.svg" alt="" width="20" height="20" /><span class="toolbar__label"><span class="toolbar__label-text">My Cart</span></span></a>
+          <a class="toolbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/feed.svg" alt="" width="20" height="20" /><span class="toolbar__label"><span class="toolbar__label-text">My Feed</span></span></a>
+          <a class="toolbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/music.svg" alt="" width="20" height="20" /><span class="toolbar__label"><span class="toolbar__label-text">My Playlists</span></span></a>
+          <a class="toolbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/chart.svg" alt="" width="20" height="20" /><span class="toolbar__label"><span class="toolbar__label-text">My Charts</span></span></a>
+          <a class="toolbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/download.svg" alt="" width="20" height="20" /><span class="toolbar__label"><span class="toolbar__label-text">My Downloads</span></span></a>
+          <a class="toolbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/followings.svg" alt="" width="20" height="20" /><span class="toolbar__label"><span class="toolbar__label-text">My Followings</span></span></a>
+          <a class="toolbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/feedback.svg" alt="" width="20" height="20" /><span class="toolbar__label"><span class="toolbar__label-text">Feedback</span></span></a>
+        </nav>
+
+        <!-- Laptop: what was in the sidebar footer (volume, shortcuts, settings, share) -->
+        <div class="floating controls">
+          <button class="icon-btn" type="button" aria-label="Volume">
+            <img src="/prototypes/responsive-navigation/assets/sb-volume.svg" alt="" width="20" height="20" />
+          </button>
+          <button class="icon-btn" type="button" aria-label="Keyboard shortcuts">
+            <img src="/prototypes/responsive-navigation/assets/sb-keyboard.svg" alt="" width="20" height="20" />
+          </button>
+          <button class="icon-btn" type="button" aria-label="Settings">
+            <img src="/prototypes/responsive-navigation/assets/sb-settings.svg" alt="" width="20" height="20" />
+          </button>
+          <button class="icon-btn" type="button" aria-label="Share">
+            <img src="/prototypes/responsive-navigation/assets/share.svg" alt="" width="20" height="20" />
+          </button>
+        </div>
+
+        <!-- Mobile + tablet: sidebar menu as a tab bar; the rest of the items live under More -->
+        <div class="tabbar-wrap" data-more>
+          <nav class="floating tabbar" aria-label="Personal">
+            <a class="tabbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/cart.svg" alt="" width="20" height="20" />My Cart</a>
+            <a class="tabbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/feed.svg" alt="" width="20" height="20" />My Feed</a>
+            <a class="tabbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/music.svg" alt="" width="20" height="20" />My Playlists</a>
+            <button class="tabbar__item" type="button" aria-expanded="false" aria-controls="more-menu" data-more-toggle>
+              <img src="/prototypes/responsive-navigation/assets/dots.svg" alt="" width="20" height="20" />More
+            </button>
+          </nav>
+
+          <ul class="more" id="more-menu" aria-label="More">
+            <li><a class="more__item" href="#"><img src="/prototypes/responsive-navigation/assets/chart.svg" alt="" width="20" height="20" />My Charts</a></li>
+            <li><a class="more__item" href="#"><img src="/prototypes/responsive-navigation/assets/download.svg" alt="" width="20" height="20" />My Downloads</a></li>
+            <li><a class="more__item" href="#"><img src="/prototypes/responsive-navigation/assets/followings.svg" alt="" width="20" height="20" />My Followings</a></li>
+            <li><a class="more__item" href="#"><img src="/prototypes/responsive-navigation/assets/feedback.svg" alt="" width="20" height="20" />Share feedback</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/prototypes/responsive-navigation/main.js"></script>
+  </body>
+</html>
