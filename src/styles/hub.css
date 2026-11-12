@@ -1,0 +1,46 @@
+/* Home page: list of prototypes */
+
+.hub {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--space-xl) var(--page-gutter);
+}
+
+.hub__header {
+  margin-bottom: var(--space-l);
+}
+
+.hub__title {
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-title);
+}
+
+.hub__subtitle {
+  margin-top: var(--space-xs);
+  color: var(--color-text-muted);
+}
+
+.hub__list {
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.hub__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hub__link {
+  display: block;
+  padding: var(--space-s) 0;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: opacity var(--duration-base) var(--ease-default);
+}
+
+.hub__link:hover {
+  opacity: 0.6;
+}
+
+.hub__empty {
+  color: var(--color-text-muted);
+}
