@@ -306,6 +306,33 @@ const setVolume = (value) => {
 volumes.forEach((range) => range.addEventListener('input', () => setVolume(range.value)))
 setVolume(volumes[0].value)
 
+// iOS Chrome: when the bottom toolbar collapses, `position: fixed; bottom: 0` can stay
+// where the old, shorter viewport ended. Measure where fixed-bottom actually lands vs the
+// bottom of the visible area and shift the dock by the difference (0 everywhere else).
+const viewport = window.visualViewport
+const dockEl = document.querySelector('.dock')
+const probe = document.createElement('div')
+probe.className = 'viewport-probe'
+probe.setAttribute('aria-hidden', 'true')
+document.body.append(probe)
+let viewportFrame = 0
+
+const syncViewportGap = () => {
+  viewportFrame = 0
+  const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight
+  const gap = Math.max(0, Math.round(visibleBottom - probe.getBoundingClientRect().bottom))
+  dockEl.style.setProperty('--rn-viewport-gap', `${gap}px`)
+}
+const queueViewportGap = () => {
+  if (!viewportFrame) viewportFrame = requestAnimationFrame(syncViewportGap)
+}
+
+viewport?.addEventListener('resize', queueViewportGap)
+viewport?.addEventListener('scroll', queueViewportGap)
+window.addEventListener('resize', queueViewportGap)
+window.addEventListener('scroll', queueViewportGap, { passive: true })
+syncViewportGap()
+
 // Hide the navigation panel on scroll down, bring it back on scroll up.
 // CSS (.dock.is-nav-hidden) moves the panel off-screen and drops Filters into the player row.
 const dock = document.querySelector('.dock')
