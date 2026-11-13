@@ -16,6 +16,13 @@ export const HOVER = {
   duration: 0.3,
 }
 
+// Mini player (Figma prototype "Mini Player"); mirrored in tokens.css
+export const PLAYER = {
+  waveStep: 0.3, // s per equalizer frame, ease-out-back
+  hover: 0.1, // s, play/pause reveal, ease-in-out
+  marqueeSpeed: 207 / 7, // px per second (Figma: 207px in 7s, linear)
+}
+
 export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 export const prefersReducedMotion = () => window.matchMedia(REDUCED_MOTION_QUERY).matches

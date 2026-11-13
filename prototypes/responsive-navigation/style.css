@@ -98,9 +98,10 @@
   border-right: 1px solid var(--vl-outline-secondary);
 }
 
+/* Logo is 20px tall at every breakpoint */
 .header__logo {
-  width: 104px;
-  height: 24px;
+  width: auto;
+  height: 20px;
 }
 
 .header__main {
@@ -305,9 +306,182 @@
   padding: var(--vl-pad-tiny) 0;
 }
 
-/* Track row */
+/* Track: info row + waveform (only for the current track) */
 
 .track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-big);
+  scroll-margin: 25vh 0;
+}
+
+.track__play-icon--pause {
+  fill: var(--vl-action-black);
+}
+
+.track__play-icon--pause,
+.track.is-playing .track__play-icon--play {
+  display: none;
+}
+
+.track.is-playing .track__play-icon--pause {
+  display: block;
+}
+
+/* Mobile: the playing track swaps "+ | cart" for a "⋯" button (Figma) */
+.track__more {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--vl-small-button-height);
+  height: var(--vl-small-button-height);
+  background-color: var(--vl-action-black);
+}
+
+@media (max-width: 479.98px) {
+  .track.is-current .track__actions .buy-compact {
+    display: none;
+  }
+
+  .track.is-current .track__more {
+    display: flex;
+  }
+}
+
+/*
+  Waveform (Figma "Waveform" / "Wave"): Start 96 | parts 1–4 | End 96, 48px tall.
+  Part 3 holds the played segment + orange playhead + elapsed time.
+  Mobile shows Start | Part 3 | End only.
+*/
+.waveform {
+  display: none;
+  align-items: flex-start;
+  height: 48px;
+}
+
+.track.is-current .waveform {
+  display: flex;
+}
+
+.waveform__start,
+.waveform__end {
+  position: relative;
+  flex-shrink: 0;
+  width: 96px;
+  height: 32px;
+}
+
+.waveform__part {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  overflow: hidden;
+}
+
+.waveform__part--1,
+.waveform__part--2,
+.waveform__part--4 {
+  display: none;
+}
+
+.waveform img {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  max-width: none;
+}
+
+.waveform__path-high {
+  height: 30px;
+}
+
+.waveform__path-low {
+  height: 12px;
+}
+
+.waveform__part--1 img {
+  left: -150px;
+}
+
+.waveform__part--2 .waveform__path-high {
+  left: calc(50% - 68px);
+  transform: translateX(-50%);
+}
+
+.waveform__part--2 .waveform__path-low,
+.waveform__part--4 .waveform__path-low {
+  left: calc(50% - 12px);
+  transform: translateX(-50%);
+}
+
+.waveform__part--4 .waveform__path-high {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.waveform__part--3 {
+  overflow: visible;
+}
+
+.waveform__clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.waveform__part--3 .waveform__clip img {
+  left: -161px;
+}
+
+.waveform__played {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 64px;
+  height: 32px;
+}
+
+.waveform__played img {
+  position: static;
+}
+
+.waveform__playhead {
+  position: absolute;
+  right: 0;
+  bottom: -16px;
+  width: 1px;
+  height: 48px;
+  background-color: var(--vl-waveform-played);
+}
+
+.waveform__time {
+  position: absolute;
+  right: 4px;
+  bottom: -4px;
+  transform: translateY(100%);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  font-weight: var(--vl-font-weight-semibold);
+  color: var(--vl-content-secondary);
+  white-space: nowrap;
+}
+
+.waveform__end .waveform__time {
+  right: 0;
+}
+
+.waveform__end-high {
+  height: 28px;
+}
+
+.waveform__end-low {
+  height: 12px;
+}
+
+/* Track row */
+
+.track__row {
   display: flex;
   align-items: center;
   gap: var(--vl-pad-medium);
@@ -473,7 +647,7 @@
   --rn-side-drop: var(--rn-filters-drop);
 }
 
-.player,
+/* .player has its own transition list (appear + scroll) further down */
 .dock__volume,
 .toolbar,
 .tabbar-wrap {
@@ -502,10 +676,31 @@
   width: 44px;
   height: 44px;
   overflow: hidden;
+  cursor: pointer;
+}
+
+/*
+  Hidden until a track is played. Appears from +50% of its height, fading in.
+  Uses `transform`; scroll-hide uses the separate `translate` property, so they compose.
+*/
+.player:not(.is-visible) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(50%);
+}
+
+/* Transitions only once shown: otherwise the page load itself would animate the player out */
+.player.is-visible {
+  transition:
+    translate var(--duration-base) var(--ease-default),
+    opacity var(--duration-base) var(--ease-default),
+    transform var(--duration-base) var(--ease-default);
 }
 
 .player__cover,
-.player__title {
+.player__title,
+.player__toggle {
   display: none;
 }
 
@@ -516,21 +711,277 @@
   object-fit: cover;
 }
 
+/*
+  Equalizer (Figma "Sound Icon"): frames 1 → 2 → 3 → 4 → 1, each step 300ms ease-out-back.
+  Frames 1 and 3 are flat bars, 2 and 4 carry per-bar heights (--s2 / --s4 as scaleY).
+  Paused: flat and still.
+*/
+.wave {
+  flex-shrink: 0;
+}
+
+.wave__bar {
+  fill: var(--vl-basic-white);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rn-wave calc(4 * var(--duration-wave-step)) infinite;
+}
+
+@keyframes rn-wave {
+  0%,
+  50%,
+  100% {
+    transform: scaleY(1);
+    animation-timing-function: var(--ease-out-back);
+  }
+
+  25% {
+    transform: scaleY(var(--s2));
+    animation-timing-function: var(--ease-out-back);
+  }
+
+  75% {
+    transform: scaleY(var(--s4));
+    animation-timing-function: var(--ease-out-back);
+  }
+}
+
+.player.is-paused .wave__bar {
+  animation: none;
+}
+
+/*
+  Track title marquee (Figma "Track"): two copies slide left by one copy width,
+  linear, then loop seamlessly. Speed matches Figma (207px in 7s); main.js sets
+  --rn-marquee-duration from the measured copy width. Hover pauses it.
+  The right 25% of the box fades out; --rn-title-cut moves the fade left to make
+  room for the play/pause button (Figma: track 172 → 144).
+*/
+@property --rn-title-cut {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 .player__title {
+  --rn-title-fade-end: calc(100% - var(--rn-title-cut));
+  --rn-marquee-gap: 8px; /* Figma: copies 207px apart */
+
   flex: 1;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
-  text-align: left;
-  -webkit-mask-image: linear-gradient(to right, #000 80%, transparent);
-  mask-image: linear-gradient(to right, #000 80%, transparent);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(var(--rn-title-fade-end) * 0.75), transparent var(--rn-title-fade-end));
+  mask-image: linear-gradient(to right, #000 calc(var(--rn-title-fade-end) * 0.75), transparent var(--rn-title-fade-end));
+  transition: --rn-title-cut var(--duration-player-hover) var(--ease-in-out);
+}
+
+.player__marquee {
+  display: flex;
+  width: max-content;
+  animation: rn-marquee var(--rn-marquee-duration, 7s) linear infinite;
+}
+
+.player__copy {
+  padding-right: var(--rn-marquee-gap);
+}
+
+@keyframes rn-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Stops only while hovered — keeps running when the track is paused */
+.player:hover .player__marquee {
+  animation-play-state: paused;
+}
+
+/*
+  Play/pause (Figma "Play-Pause"): appears on hover over the player (100ms ease-in-out)
+  and hides again on leave, paused or not. Grey by default, white on its own hover.
+*/
+.player__toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: var(--vl-icon-size);
+  height: var(--vl-icon-size);
+  margin-top: calc(var(--vl-icon-size) / -2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-player-hover) var(--ease-in-out);
+}
+
+.player:hover .player__toggle,
+.player:has(:focus-visible) .player__toggle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.player:hover .player__title,
+.player:has(:focus-visible) .player__title {
+  --rn-title-cut: calc(var(--vl-icon-size) + var(--vl-pad-tiny));
+}
+
+.player__icon {
+  position: absolute;
+  inset: 0;
+  fill: var(--vl-basic-white);
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-player-hover) var(--ease-in-out);
+}
+
+.player__toggle:hover .player__icon,
+.player__toggle:focus-visible .player__icon {
+  opacity: 1;
+}
+
+.player__icon--play,
+.player.is-paused .player__icon--pause {
+  visibility: hidden;
+}
+
+.player.is-paused .player__icon--play {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* base.css shortens durations; infinite loops would then flicker, so stop them */
+  .wave__bar,
+  .player__marquee {
+    animation: none;
+  }
 }
 
 .dock__volume {
   grid-area: volume;
-  justify-content: center;
   width: 44px;
   height: 44px;
+}
+
+/*
+  Volume (mobile/tablet round button, laptop controls panel).
+  Icon is grey (Figma #747c8a ≈ white at --opacity-muted) and turns white while
+  active; the slider pops up above it on hover. Touch screens have hardware
+  volume, so the whole control is hidden there.
+*/
+.volume {
+  position: relative;
+  display: flex;
+}
+
+.volume__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.volume--end .volume__button {
+  width: 44px;
+  height: 44px;
+}
+
+.volume__button img {
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-player-hover) var(--ease-in-out);
+}
+
+.volume:hover .volume__button img,
+.volume:has(:focus-visible) .volume__button img {
+  opacity: 1;
+}
+
+/* Wrapper reaches down to the button so the pointer can travel into the panel without losing hover */
+.volume__popover {
+  position: absolute;
+  bottom: 100%;
+  padding-bottom: var(--vl-pad-tiny);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity var(--duration-hover) var(--ease-out),
+    transform var(--duration-hover) var(--ease-out),
+    visibility 0s linear var(--duration-hover);
+}
+
+.volume--end .volume__popover {
+  right: 0;
+}
+
+/* Laptop: aligned to the controls panel's left edge (panel padding is 16px), 8px above the panel */
+.volume--panel .volume__popover {
+  left: -16px;
+  /* the controls panel adds 12px below the icon, so reach further down */
+  padding-bottom: calc(var(--vl-pad-tiny) + 12px);
+}
+
+.volume:hover .volume__popover,
+.volume:has(:focus-visible) .volume__popover {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity var(--duration-hover) var(--ease-out),
+    transform var(--duration-hover) var(--ease-out);
+}
+
+/*
+  Figma (Laptop, Frame 1412): vertical pill 44×152, padding 16, bar 4×120.
+  Bar = rest on top (#303b47) + level at the bottom (white), 2px apart, no thumb.
+  --rn-volume-n (0–100, set from JS) splits the bar.
+*/
+.volume__panel {
+  --rn-volume-n: 50;
+
+  position: relative;
+  justify-content: center;
+  width: 44px;
+  height: 152px;
+  padding: var(--vl-pad-big) 16px;
+}
+
+.volume__bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 4px;
+  height: 120px;
+}
+
+.volume__rest,
+.volume__level {
+  min-height: 0;
+}
+
+.volume__rest {
+  flex: calc(100 - var(--rn-volume-n)) 1 0;
+  background-color: var(--vl-action-dark-hover);
+}
+
+.volume__level {
+  flex: var(--rn-volume-n) 1 0;
+  background-color: var(--vl-basic-white);
+}
+
+/* Native vertical range on top of the bar: invisible, but handles drag, wheel and keys */
+.volume__range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  writing-mode: vertical-lr;
+  direction: rtl;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .volume {
+    display: none;
+  }
 }
 
 /* Filters */
@@ -731,6 +1182,21 @@
   padding: 12px 16px;
 }
 
+/* All icons grey (white at --opacity-muted ≈ #747c8a); the hovered one turns white */
+.controls .icon-btn img {
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-player-hover) var(--ease-in-out);
+}
+
+.controls .icon-btn:hover {
+  opacity: 1;
+}
+
+.controls .icon-btn:hover img,
+.controls .icon-btn:focus-visible img {
+  opacity: 1;
+}
+
 /* ───────── Sidebar (desktop) ───────── */
 
 .sidebar__nav {
@@ -896,6 +1362,13 @@
 /* ═════════ Tablet ≥480 ═════════ */
 
 @media (min-width: 480px) {
+  /* Full waveform: Start | 1 | 2 | 3 (played) | 4 | End */
+  .waveform__part--1,
+  .waveform__part--2,
+  .waveform__part--4 {
+    display: block;
+  }
+
   .rn {
     --rn-dock-space: 148px;
   }
@@ -909,7 +1382,7 @@
   }
 
   /* Track: title | genre | actions */
-  .track {
+  .track__row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
     gap: var(--vl-pad-large);
@@ -1014,7 +1487,7 @@
 
   /* Options + tracks share a 6-column grid */
   .release__options,
-  .track {
+  .track__row {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: var(--vl-grid-gutter);
@@ -1093,8 +1566,13 @@
     padding: 12px;
   }
 
+  .player {
+    position: relative;
+  }
+
   .player__cover,
-  .player__title {
+  .player__title,
+  .player__toggle {
     display: block;
   }
 
@@ -1123,11 +1601,6 @@
 
   .header__brand {
     width: auto;
-  }
-
-  .header__logo {
-    width: 86.667px;
-    height: 20px;
   }
 
   .header__main {
