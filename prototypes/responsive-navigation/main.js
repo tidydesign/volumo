@@ -222,10 +222,21 @@ const sheets = document.querySelectorAll('[data-sheet]')
 const sheetToggles = document.querySelectorAll('[data-sheet-toggle]')
 let openSheet = null
 
+// Tablet+: dimmed page under the sheet; a click on it closes the sheet
+const sheetOverlay = document.createElement('div')
+sheetOverlay.className = 'sheet-overlay'
+sheetOverlay.setAttribute('aria-hidden', 'true')
+document.body.append(sheetOverlay)
+sheetOverlay.addEventListener('click', () => setSheet(null))
+
 const setSheet = (name) => {
   openSheet = name
+  // Tablet: the navigation panel hangs under the burger cell
+  const navCell = document.querySelector('.header__main')
+  document.documentElement.style.setProperty('--rn-nav-sheet-left', `${navCell.getBoundingClientRect().left}px`)
   sheets.forEach((sheet) => sheet.classList.toggle('is-open', sheet.dataset.sheet === name))
   sheetToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(toggle.dataset.sheetToggle === name)))
+  sheetOverlay.classList.toggle('is-visible', Boolean(name))
   document.documentElement.classList.toggle('is-sheet-open', Boolean(name))
   if (name) {
     setMore(false)
@@ -241,9 +252,9 @@ sheetToggles.forEach((toggle) =>
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && openSheet) setSheet(null)
 })
-// Sheets exist only below 835px: close them if the window grows past it
+// The navigation sheet exists only below 835px: close it if the window grows past it
 window.matchMedia('(min-width: 835px)').addEventListener('change', (event) => {
-  if (event.matches && openSheet) setSheet(null)
+  if (event.matches && openSheet === 'nav') setSheet(null)
 })
 document.addEventListener('click', (event) => {
   if (!more.contains(event.target)) setMore(false)

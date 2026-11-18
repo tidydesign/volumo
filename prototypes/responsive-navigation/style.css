@@ -158,7 +158,7 @@
 /*
   Mobile + tablet header (Figma "Mobile - Navigation 01-1"): burger on the left
   opens the navigation sheet (turns into ✕); avatar + chevron opens the profile
-  sheet (chevron flips). The separate burger next to the avatar is laptop+ only.
+  sheet (chevron flips) — on every breakpoint (desktop: avatar + name + chevron).
 */
 .header__catalog-icon--close,
 .header__catalog[aria-expanded="true"] .header__catalog-icon--open {
@@ -183,8 +183,13 @@
   transform: rotate(180deg);
 }
 
-.header__menu {
+/* 16px chevron up to laptop, 20px on desktop (Figma) */
+.header__chevron--large {
   display: none;
+}
+
+.header__user-info {
+  text-align: left;
 }
 
 /*
@@ -336,6 +341,32 @@
 
 .profile__topup:hover {
   opacity: 0.88;
+}
+
+.profile__number--discount {
+  color: var(--vl-action-green);
+}
+
+/* Page dims under tablet+ sheets (Figma: #04070a at 64%, from the header down, over the dock) */
+.sheet-overlay {
+  position: fixed;
+  top: var(--vl-header-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 34;
+  background-color: var(--vl-basic-black);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-fast) var(--ease-default),
+    visibility 0s linear var(--duration-fast);
+}
+
+.sheet-overlay.is-visible {
+  opacity: 0.64;
+  visibility: visible;
+  transition: opacity var(--duration-fast) var(--ease-default);
 }
 
 /* Currency icon is two vectors in Figma, placed as in the Icons/24px/Currency frame */
@@ -1724,18 +1755,10 @@
     width: 136px;
   }
 
+  /* Links are inline in the header here: no burger, no navigation sheet */
   .header__catalog,
-  .header__chevron,
-  .sheet {
+  #nav-sheet {
     display: none;
-  }
-
-  .header__menu {
-    display: inline-flex;
-  }
-
-  .header__profile {
-    pointer-events: none;
   }
 
   .header__nav {
@@ -1930,13 +1953,27 @@
 
   .header__user {
     width: var(--vl-sidebar-width);
-    gap: 16px;
     padding: 0 var(--vl-pad-big);
     border-right: 1px solid var(--vl-outline-secondary);
   }
 
+  /* Desktop: the whole user cell (avatar, name, balance, chevron) is the toggle */
+  .header__profile {
+    flex: 1;
+    gap: 16px;
+    min-width: 0;
+  }
+
   .header__user-info {
     display: flex;
+  }
+
+  .header__chevron--small {
+    display: none;
+  }
+
+  .header__chevron--large {
+    display: block;
   }
 
   /* Content + sidebar */
@@ -1982,5 +2019,71 @@
   .toolbar,
   .controls {
     display: none;
+  }
+}
+
+/* ═════════ Sheets on tablet / laptop / desktop ═════════
+   Figma "Tablet - Navigation 01-2/01-3", "Laptop - Navigation 01-3", "Desktop - Navigation 01-3":
+   sheets stop being full-screen and become panels under the header over a dimmed page.
+   - navigation (tablet only): 320 wide, under the burger cell
+   - profile: on the right; 320 on tablet, 288 on laptop, desktop aligned with the sidebar column
+*/
+@media (min-width: 480px) {
+  .sheet {
+    bottom: auto;
+    width: 320px;
+    max-height: calc(100dvh - var(--vl-header-height));
+  }
+
+  #nav-sheet {
+    right: auto;
+    left: var(--rn-nav-sheet-left, 120px); /* set from the burger cell position in main.js */
+  }
+
+  #nav-sheet .sheet__body {
+    padding: var(--vl-pad-point) 16px;
+  }
+
+  #profile-sheet {
+    left: auto;
+  }
+}
+
+@media (min-width: 835px) {
+  #profile-sheet {
+    width: var(--vl-sidebar-width);
+  }
+
+  /* Wider layout: 24px around the top block, menu groups 12px + 12px per item, no Settings */
+  .sheet__body--profile {
+    gap: 0;
+    padding: 0;
+  }
+
+  .profile {
+    padding: 24px;
+  }
+
+  .profile__topup {
+    padding: 16px 24px 16px 16px;
+  }
+
+  .sheet__groups .sheet__group {
+    padding: 12px;
+  }
+
+  .sheet__groups .sheet__item {
+    padding: 0 12px;
+  }
+
+  .sheet__group--settings {
+    display: none;
+  }
+}
+
+@media (min-width: 1281px) {
+  /* Right edge of the 1600px container (= the sidebar column) */
+  #profile-sheet {
+    right: max(0px, calc((100% - var(--vl-container-max)) / 2));
   }
 }

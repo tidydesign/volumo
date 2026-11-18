@@ -43,17 +43,15 @@
         </div>
 
         <div class="header__user">
-          <!-- Mobile + tablet: avatar + chevron opens the profile sheet -->
+          <!-- Avatar (+ name on desktop) + chevron opens the profile sheet at every breakpoint -->
           <button class="header__profile" type="button" aria-label="Profile menu" aria-expanded="false" aria-controls="profile-sheet" data-sheet-toggle="profile">
             <img class="header__avatar" src="/prototypes/responsive-navigation/assets/avatar.png" alt="" width="32" height="32" />
-            <img class="header__chevron" src="/prototypes/responsive-navigation/assets/chevron-small.svg" alt="" width="16" height="16" />
-          </button>
-          <div class="header__user-info">
-            <span class="header__user-name">Marcus Vaccaro</span>
-            <span class="header__user-balance">€12.81</span>
-          </div>
-          <button class="icon-btn header__menu" type="button" aria-label="Menu">
-            <img src="/prototypes/responsive-navigation/assets/burger.svg" alt="" width="20" height="20" />
+            <span class="header__user-info">
+              <span class="header__user-name">Marcus Vaccaro</span>
+              <span class="header__user-balance">€12.81</span>
+            </span>
+            <img class="header__chevron header__chevron--small" src="/prototypes/responsive-navigation/assets/chevron-small.svg" alt="" width="16" height="16" />
+            <img class="header__chevron header__chevron--large" src="/prototypes/responsive-navigation/assets/chevron-down-20.svg" alt="" width="20" height="20" />
           </button>
         </div>
       </div>
@@ -84,7 +82,7 @@
           <div class="profile__stats">
             <div class="profile__numbers">
               <span class="profile__number">€12.81</span>
-              <span class="profile__number">30% OFF</span>
+              <span class="profile__number profile__number--discount">30% OFF</span>
             </div>
             <p class="profile__note"><span>Discount expired:</span><span>30.11.2025</span></p>
           </div>
@@ -97,6 +95,7 @@
           <ul class="sheet__group">
             <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-profile.svg" alt="" width="20" height="20" />My profile</span></a></li>
             <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-monetization.svg" alt="" width="20" height="20" />Chart monetization</span></a></li>
+            <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-upload.svg" alt="" width="20" height="20" />Artist &amp; label panel</span></a></li>
           </ul>
           <ul class="sheet__group">
             <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-language.svg" alt="" width="20" height="20" />Language</span><span class="sheet__value">English</span></a></li>
@@ -113,7 +112,8 @@
             </li>
             <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-theme.svg" alt="" width="20" height="20" />Theme</span><span class="sheet__value">Dark</span></a></li>
           </ul>
-          <ul class="sheet__group">
+          <!-- Laptop + desktop have settings in the controls panel / sidebar, so this group is mobile + tablet only -->
+          <ul class="sheet__group sheet__group--settings">
             <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-settings.svg" alt="" width="20" height="20" />Settings</span></a></li>
           </ul>
           <ul class="sheet__group">
