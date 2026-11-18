@@ -222,8 +222,30 @@ const setMoreItemOffsets = () => {
   })
 }
 
+// Closing plays the opening in reverse: .is-closing for the length of it
+// (menu duration + the last item's stagger delay), then cleared.
+const playClosing = (menu) => {
+  const root = getComputedStyle(document.documentElement)
+  const duration = parseFloat(root.getPropertyValue('--duration-menu'))
+  const step = parseFloat(root.getPropertyValue('--stagger-step'))
+  const count = menu.querySelectorAll('.stagger').length
+  menu.classList.add('is-closing')
+  clearTimeout(menu.closingTimer)
+  menu.closingTimer = setTimeout(() => menu.classList.remove('is-closing'), duration + count * step)
+}
+const stopClosing = (menu) => {
+  clearTimeout(menu.closingTimer)
+  menu.classList.remove('is-closing')
+}
+
 const setMore = (open) => {
-  if (open) setMoreItemOffsets()
+  const wasOpen = more.classList.contains('is-open')
+  if (open) {
+    stopClosing(more)
+    setMoreItemOffsets()
+  } else if (wasOpen) {
+    playClosing(more)
+  }
   more.classList.toggle('is-open', open)
   moreOverlay.classList.toggle('is-visible', open)
   document.querySelector('.dock').classList.toggle('is-more-open', open)
@@ -251,7 +273,12 @@ const setSheet = (name) => {
   // Tablet: the navigation panel hangs under the burger cell
   const navCell = document.querySelector('.header__main')
   document.documentElement.style.setProperty('--rn-nav-sheet-left', `${navCell.getBoundingClientRect().left}px`)
-  sheets.forEach((sheet) => sheet.classList.toggle('is-open', sheet.dataset.sheet === name))
+  sheets.forEach((sheet) => {
+    const opening = sheet.dataset.sheet === name
+    if (opening) stopClosing(sheet)
+    else if (sheet.classList.contains('is-open')) playClosing(sheet)
+    sheet.classList.toggle('is-open', opening)
+  })
   sheetToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(toggle.dataset.sheetToggle === name)))
   sheetOverlay.classList.toggle('is-visible', Boolean(name))
   document.documentElement.classList.toggle('is-sheet-open', Boolean(name))
@@ -282,13 +309,16 @@ document.addEventListener('keydown', (event) => {
 
 // Menu items fade in one by one, top to bottom: tag them and store their order in --i
 const STAGGER_TARGETS = {
+  '.more': '.more__item, .more__feedback',
   '#nav-sheet': '.sheet__item',
   '#profile-sheet': '.profile > *, .sheet__item',
 }
 Object.entries(STAGGER_TARGETS).forEach(([menu, items]) => {
-  document.querySelectorAll(`${menu} :is(${items})`).forEach((item, index) => {
+  const list = document.querySelectorAll(`${menu} :is(${items})`)
+  list.forEach((item, index) => {
     item.classList.add('stagger')
     item.style.setProperty('--i', index)
+    item.style.setProperty('--n', list.length) // closing runs bottom to top
   })
 })
 

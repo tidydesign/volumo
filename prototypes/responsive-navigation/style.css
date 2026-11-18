@@ -1351,8 +1351,11 @@
   }
 }
 
+/* …and fade in top to bottom, --stagger-step apart, like the sheets */
 .tabbar-wrap.is-open .more :is(.more__item, .more__feedback) {
-  animation: rn-more-item-in var(--duration-menu) var(--ease-out-quad) backwards;
+  animation:
+    rn-more-item-in var(--duration-menu) var(--ease-out-quad) backwards,
+    rn-stagger-in var(--duration-menu) var(--ease-out-quad) calc(var(--i, 0) * var(--stagger-step)) backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1382,18 +1385,51 @@
 }
 
 .sheet.is-open .stagger {
-  animation: rn-stagger-in var(--duration-menu) var(--ease-out-quad) backwards;
+  animation: rn-stagger-drop-in var(--duration-menu) var(--ease-out-quad) backwards;
   animation-delay: calc(var(--i, 0) * var(--stagger-step));
 }
 
-
-.sheet.is-open .stagger {
-  animation-name: rn-stagger-drop-in;
+/*
+  Closing = the opening in reverse: items leave bottom to top (the last one first,
+  delay counted from the end, --n = number of items), back to their start state.
+  Separate keyframes on purpose: reusing the opening ones would just continue the
+  already finished animation and jump to its end, hiding everything at once.
+  Fill "both": visible until each item's turn, hidden after it.
+*/
+@keyframes rn-stagger-out {
+  to {
+    opacity: 0;
+  }
 }
 
+@keyframes rn-stagger-drop-out {
+  to {
+    opacity: 0;
+    transform: translateY(var(--menu-item-offset));
+  }
+}
+
+@keyframes rn-more-item-out {
+  to {
+    transform: translateY(var(--rn-item-from, 0px));
+  }
+}
+
+.sheet.is-closing .stagger {
+  animation: rn-stagger-drop-out var(--duration-menu) var(--ease-out-quad) both;
+  animation-delay: calc((var(--n, 1) - 1 - var(--i, 0)) * var(--stagger-step));
+}
+
+.tabbar-wrap.is-closing .more :is(.more__item, .more__feedback) {
+  animation:
+    rn-more-item-out var(--duration-menu) var(--ease-out-quad) both,
+    rn-stagger-out var(--duration-menu) var(--ease-out-quad) calc((var(--n, 1) - 1 - var(--i, 0)) * var(--stagger-step)) both;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .sheet.is-open .stagger {
+  .sheet.is-open .stagger,
+  .sheet.is-closing .stagger,
+  .tabbar-wrap.is-closing .more :is(.more__item, .more__feedback) {
     animation: none;
   }
 }
@@ -2172,5 +2208,12 @@
   .dock__inner {
     /* The tab bar row is 56px: Filters drops to the centre line of the player row (as on tablet) */
     --rn-filters-drop: calc(var(--rn-dock-button) / 2 + 12px + var(--rn-tabbar-height) / 2);
+  }
+}
+
+/* Tablet: the profile panel has no bottom padding (the last group's own padding is enough) */
+@media (min-width: 480px) and (max-width: 834.98px) {
+  .sheet__body--profile {
+    padding-bottom: 0;
   }
 }
