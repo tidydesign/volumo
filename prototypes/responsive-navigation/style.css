@@ -2087,3 +2087,23 @@
     right: max(0px, calc((100% - var(--vl-container-max)) / 2));
   }
 }
+
+/* ═════════ Touch devices in the laptop range (835–1280) ═════════
+   The laptop toolbar shows labels only on hover, which touch screens don't have
+   (e.g. iPad in landscape). Use the tablet tab bar + More menu there instead.
+   Desktop (≥1281) keeps the sidebar: it has icons and labels already. */
+@media (min-width: 835px) and (max-width: 1280.98px) and (hover: none) and (pointer: coarse) {
+  .toolbar {
+    display: none;
+  }
+
+  .tabbar-wrap {
+    display: block;
+    grid-area: toolbar;
+  }
+
+  .dock__inner {
+    /* The tab bar row is 56px: Filters drops to the centre line of the player row (as on tablet) */
+    --rn-filters-drop: calc(var(--rn-dock-button) / 2 + 12px + var(--rn-tabbar-height) / 2);
+  }
+}
