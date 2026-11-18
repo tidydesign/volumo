@@ -244,17 +244,36 @@
             <a class="tabbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/cart.svg" alt="" width="20" height="20" />My Cart</a>
             <a class="tabbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/feed.svg" alt="" width="20" height="20" />My Feed</a>
             <a class="tabbar__item" href="#"><img src="/prototypes/responsive-navigation/assets/music.svg" alt="" width="20" height="20" />My Playlists</a>
-            <button class="tabbar__item" type="button" aria-expanded="false" aria-controls="more-menu" data-more-toggle>
-              <img src="/prototypes/responsive-navigation/assets/dots.svg" alt="" width="20" height="20" />More
+            <button class="tabbar__item tabbar__more" type="button" aria-expanded="false" aria-controls="more-menu" data-more-toggle>
+              <span class="tabbar__more-state tabbar__more-state--closed">
+                <img src="/prototypes/responsive-navigation/assets/dots.svg" alt="" width="20" height="20" />More
+              </span>
+              <span class="tabbar__more-state tabbar__more-state--open">
+                <img src="/prototypes/responsive-navigation/assets/close.svg" alt="" width="20" height="20" />Close
+              </span>
             </button>
           </nav>
 
-          <ul class="more" id="more-menu" aria-label="More">
-            <li><a class="more__item" href="#"><img src="/prototypes/responsive-navigation/assets/chart.svg" alt="" width="20" height="20" />My Charts</a></li>
-            <li><a class="more__item" href="#"><img src="/prototypes/responsive-navigation/assets/download.svg" alt="" width="20" height="20" />My Downloads</a></li>
-            <li><a class="more__item" href="#"><img src="/prototypes/responsive-navigation/assets/followings.svg" alt="" width="20" height="20" />My Followings</a></li>
-            <li><a class="more__item" href="#"><img src="/prototypes/responsive-navigation/assets/feedback.svg" alt="" width="20" height="20" />Share feedback</a></li>
-          </ul>
+          <!-- Figma "Mobile - Open 01": the whole sidebar menu, same width as the tab bar -->
+          <div class="floating more" id="more-menu">
+            <nav class="more__list" aria-label="Personal">
+              <a class="more__item" href="#">
+                <span class="more__label"><img src="/prototypes/responsive-navigation/assets/cart.svg" alt="" width="20" height="20" />My Cart</span>
+                <span class="pill pill--cart"><span class="pill__badge">0</span>€0.00</span>
+              </a>
+              <a class="more__item" href="#">
+                <span class="more__label"><img src="/prototypes/responsive-navigation/assets/download.svg" alt="" width="20" height="20" />My Downloads</span>
+                <span class="pill">0</span>
+              </a>
+              <a class="more__item" href="#"><span class="more__label"><img src="/prototypes/responsive-navigation/assets/feed.svg" alt="" width="20" height="20" />My Feed</span></a>
+              <a class="more__item" href="#"><span class="more__label"><img src="/prototypes/responsive-navigation/assets/music.svg" alt="" width="20" height="20" />My Playlists</span></a>
+              <a class="more__item" href="#"><span class="more__label"><img src="/prototypes/responsive-navigation/assets/chart.svg" alt="" width="20" height="20" />My Charts</span></a>
+              <a class="more__item" href="#"><span class="more__label"><img src="/prototypes/responsive-navigation/assets/followings.svg" alt="" width="20" height="20" />My Followings</span></a>
+            </nav>
+            <a class="more__feedback" href="#">
+              <img src="/prototypes/responsive-navigation/assets/feedback.svg" alt="" width="20" height="20" />Share feedback
+            </a>
+          </div>
         </div>
       </div>
     </div>

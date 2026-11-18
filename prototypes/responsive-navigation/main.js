@@ -198,13 +198,20 @@ document.querySelector('[data-releases]').innerHTML = Array.from({ length: REPEA
   RELEASES.map(release).join(''),
 ).join('')
 
-// "More" in the tab bar: opens the rest of the sidebar items
+// "More" in the tab bar: opens the whole sidebar menu over a dimmed page
 const more = document.querySelector('[data-more]')
 const moreToggle = more.querySelector('[data-more-toggle]')
+const moreOverlay = document.createElement('div')
+moreOverlay.className = 'more-overlay'
+moreOverlay.setAttribute('aria-hidden', 'true')
+document.body.append(moreOverlay)
 
 const setMore = (open) => {
   more.classList.toggle('is-open', open)
+  moreOverlay.classList.toggle('is-visible', open)
+  document.querySelector('.dock').classList.toggle('is-more-open', open)
   moreToggle.setAttribute('aria-expanded', String(open))
+  moreToggle.setAttribute('aria-label', open ? 'Close menu' : 'More')
 }
 
 moreToggle.addEventListener('click', () => setMore(!more.classList.contains('is-open')))

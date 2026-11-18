@@ -606,7 +606,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 20;
+  z-index: 30; /* above the More overlay (25) and the header (20) */
   pointer-events: none;
   /* Fixed to the viewport, so 100cqw = page width without the scrollbar.
      Used to size the mini player from the release cover width. */
@@ -662,10 +662,15 @@
 }
 
 /* .player has its own transition list (appear + scroll) further down */
-.dock__volume,
 .toolbar,
 .tabbar-wrap {
   transition: translate var(--duration-base) var(--ease-default);
+}
+
+.dock__volume {
+  transition:
+    translate var(--duration-base) var(--ease-default),
+    opacity var(--duration-fast) var(--ease-default);
 }
 
 .dock.is-nav-hidden .toolbar,
@@ -1017,7 +1022,8 @@
   color: var(--vl-basic-white);
   transition:
     transform var(--duration-fast) var(--ease-default),
-    translate var(--duration-base) var(--ease-default);
+    translate var(--duration-base) var(--ease-default),
+    opacity var(--duration-fast) var(--ease-default);
 }
 
 .filters:active {
@@ -1051,22 +1057,23 @@
   overflow: hidden;
 }
 
-/* "More" popover: the sidebar items that don't fit in the tab bar */
+/*
+  "More" menu (Figma "Mobile - Open 01"): the whole sidebar menu in a floating
+  panel, exactly as wide as the tab bar, 8px above it. Padding 8, gap 8,
+  items 48px tall with 12px side padding, "Share feedback" as a full-width pill.
+*/
 .more {
   position: absolute;
   right: 0;
   bottom: calc(100% + var(--vl-pad-tiny));
-  display: flex;
+  left: 0;
   flex-direction: column;
-  min-width: 200px;
-  padding: var(--vl-pad-point);
-  border-radius: 24px;
-  background-color: var(--vl-bg-secondary);
-  box-shadow: var(--vl-shadow-floating), var(--vl-shadow-floating-inset);
+  align-items: stretch;
+  gap: var(--vl-pad-tiny);
+  padding: var(--vl-pad-tiny);
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px);
-  transform-origin: bottom right;
   transition:
     opacity var(--duration-fast) var(--ease-default),
     transform var(--duration-fast) var(--ease-default),
@@ -1082,23 +1089,93 @@
     transform var(--duration-fast) var(--ease-default);
 }
 
+.more__list {
+  display: flex;
+  flex-direction: column;
+}
+
 .more__item {
   display: flex;
   align-items: center;
-  gap: var(--vl-pad-tiny);
-  height: 44px;
+  justify-content: space-between;
+  height: 48px;
   padding: 0 12px;
-  font-weight: var(--vl-font-weight-semibold);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.more__label {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  white-space: nowrap;
+}
+
+.more__feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-tiny);
+  height: 48px;
+  padding: 12px;
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-dark);
   white-space: nowrap;
   transition: opacity var(--duration-fast) var(--ease-default);
 }
 
-.more__item:hover {
+.more__item:hover,
+.more__feedback:hover {
   opacity: 0.72;
 }
 
-.tabbar-wrap.is-open [data-more-toggle] {
-  opacity: 0.72;
+/* Open: More turns into Close (highlighted), the other tabs go grey */
+.tabbar__more-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--vl-pad-point);
+}
+
+.tabbar__more-state--open,
+.tabbar-wrap.is-open .tabbar__more-state--closed {
+  display: none;
+}
+
+.tabbar-wrap.is-open .tabbar__more-state--open {
+  display: flex;
+}
+
+.tabbar-wrap.is-open .tabbar__more {
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-dark);
+}
+
+.tabbar-wrap.is-open .tabbar__item:not(.tabbar__more) {
+  opacity: var(--opacity-muted);
+}
+
+/* Page dims under the open menu (Figma: #04070a at 24%); the player row fades out */
+.more-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background-color: var(--vl-basic-black);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-fast) var(--ease-default),
+    visibility 0s linear var(--duration-fast);
+}
+
+.more-overlay.is-visible {
+  opacity: 0.24;
+  visibility: visible;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.dock.is-more-open :is(.player, .filters, .dock__volume) {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .tabbar__item {
