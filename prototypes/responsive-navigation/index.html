@@ -18,8 +18,10 @@
         </a>
 
         <div class="header__main">
-          <button class="icon-btn header__catalog" type="button" aria-label="Catalog">
-            <img src="/prototypes/responsive-navigation/assets/chocolate.svg" alt="" width="20" height="20" />
+          <!-- Mobile + tablet: burger opens the main navigation sheet, turns into ✕ -->
+          <button class="icon-btn header__catalog" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-sheet" data-sheet-toggle="nav">
+            <img class="header__catalog-icon header__catalog-icon--open" src="/prototypes/responsive-navigation/assets/burger.svg" alt="" width="20" height="20" />
+            <img class="header__catalog-icon header__catalog-icon--close" src="/prototypes/responsive-navigation/assets/close.svg" alt="" width="20" height="20" />
           </button>
 
           <nav class="header__nav" aria-label="Catalog">
@@ -41,17 +43,85 @@
         </div>
 
         <div class="header__user">
-          <img class="header__avatar" src="/prototypes/responsive-navigation/assets/avatar.png" alt="" width="32" height="32" />
+          <!-- Mobile + tablet: avatar + chevron opens the profile sheet -->
+          <button class="header__profile" type="button" aria-label="Profile menu" aria-expanded="false" aria-controls="profile-sheet" data-sheet-toggle="profile">
+            <img class="header__avatar" src="/prototypes/responsive-navigation/assets/avatar.png" alt="" width="32" height="32" />
+            <img class="header__chevron" src="/prototypes/responsive-navigation/assets/chevron-small.svg" alt="" width="16" height="16" />
+          </button>
           <div class="header__user-info">
             <span class="header__user-name">Marcus Vaccaro</span>
             <span class="header__user-balance">€12.81</span>
           </div>
-          <button class="icon-btn" type="button" aria-label="Menu">
+          <button class="icon-btn header__menu" type="button" aria-label="Menu">
             <img src="/prototypes/responsive-navigation/assets/burger.svg" alt="" width="20" height="20" />
           </button>
         </div>
       </div>
     </header>
+
+    <!-- Figma "Mobile - Navigation 01-2": main navigation sheet under the header -->
+    <div class="sheet" id="nav-sheet" data-sheet="nav" aria-label="Main navigation">
+      <nav class="sheet__body">
+        <ul class="sheet__list">
+          <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/nav-genres.svg" alt="" width="20" height="20" />Genres</span><img src="/prototypes/responsive-navigation/assets/chevron-right.svg" alt="" width="20" height="20" /></a></li>
+          <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/nav-releases.svg" alt="" width="20" height="20" />Releases</span><img src="/prototypes/responsive-navigation/assets/chevron-right.svg" alt="" width="20" height="20" /></a></li>
+          <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/nav-direct.svg" alt="" width="20" height="20" />Volumo Direct</span><img src="/prototypes/responsive-navigation/assets/chevron-right.svg" alt="" width="20" height="20" /></a></li>
+          <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/nav-exclusive.svg" alt="" width="20" height="20" />Volumo Exclusive</span></a></li>
+          <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/nav-charts.svg" alt="" width="20" height="20" />Charts</span></a></li>
+          <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/nav-preorders.svg" alt="" width="20" height="20" />Preorders</span></a></li>
+          <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/nav-artists.svg" alt="" width="20" height="20" />Artists</span></a></li>
+          <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/nav-labels.svg" alt="" width="20" height="20" />Labels</span></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Figma "Mobile - Navigation 01-3": profile sheet under the header -->
+    <div class="sheet" id="profile-sheet" data-sheet="profile" aria-label="Profile">
+      <div class="sheet__body sheet__body--profile">
+        <div class="profile">
+          <img class="profile__avatar" src="/prototypes/responsive-navigation/assets/avatar.png" alt="" width="96" height="96" />
+          <p class="profile__name">Marcus Vaccaro</p>
+          <div class="profile__stats">
+            <div class="profile__numbers">
+              <span class="profile__number">€12.81</span>
+              <span class="profile__number">30% OFF</span>
+            </div>
+            <p class="profile__note"><span>Discount expired:</span><span>30.11.2025</span></p>
+          </div>
+          <a class="profile__topup" href="#">
+            <img src="/prototypes/responsive-navigation/assets/pr-wallet.svg" alt="" width="20" height="20" />Top up balance
+          </a>
+        </div>
+
+        <nav class="sheet__groups" aria-label="Account">
+          <ul class="sheet__group">
+            <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-profile.svg" alt="" width="20" height="20" />My profile</span></a></li>
+            <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-monetization.svg" alt="" width="20" height="20" />Chart monetization</span></a></li>
+          </ul>
+          <ul class="sheet__group">
+            <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-language.svg" alt="" width="20" height="20" />Language</span><span class="sheet__value">English</span></a></li>
+            <li>
+              <a class="sheet__item" href="#">
+                <span class="sheet__label">
+                  <span class="icon-currency" aria-hidden="true">
+                    <img class="icon-currency__a" src="/prototypes/responsive-navigation/assets/pr-currency-a.svg" alt="" />
+                    <img class="icon-currency__b" src="/prototypes/responsive-navigation/assets/pr-currency-b.svg" alt="" />
+                  </span>Currency
+                </span>
+                <span class="sheet__value">EUR</span>
+              </a>
+            </li>
+            <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-theme.svg" alt="" width="20" height="20" />Theme</span><span class="sheet__value">Dark</span></a></li>
+          </ul>
+          <ul class="sheet__group">
+            <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-settings.svg" alt="" width="20" height="20" />Settings</span></a></li>
+          </ul>
+          <ul class="sheet__group">
+            <li><a class="sheet__item" href="#"><span class="sheet__label"><img src="/prototypes/responsive-navigation/assets/pr-logout.svg" alt="" width="20" height="20" />Log out</span></a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
 
     <div class="layout">
       <main class="layout__content" data-releases></main>

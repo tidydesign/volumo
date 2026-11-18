@@ -215,6 +215,36 @@ const setMore = (open) => {
 }
 
 moreToggle.addEventListener('click', () => setMore(!more.classList.contains('is-open')))
+
+// Mobile/tablet sheets under the header: main navigation (burger) and profile (avatar).
+// One at a time; the page stops scrolling while a sheet is open.
+const sheets = document.querySelectorAll('[data-sheet]')
+const sheetToggles = document.querySelectorAll('[data-sheet-toggle]')
+let openSheet = null
+
+const setSheet = (name) => {
+  openSheet = name
+  sheets.forEach((sheet) => sheet.classList.toggle('is-open', sheet.dataset.sheet === name))
+  sheetToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(toggle.dataset.sheetToggle === name)))
+  document.documentElement.classList.toggle('is-sheet-open', Boolean(name))
+  if (name) {
+    setMore(false)
+    lenis?.stop()
+  } else {
+    lenis?.start()
+  }
+}
+
+sheetToggles.forEach((toggle) =>
+  toggle.addEventListener('click', () => setSheet(openSheet === toggle.dataset.sheetToggle ? null : toggle.dataset.sheetToggle)),
+)
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && openSheet) setSheet(null)
+})
+// Sheets exist only below 835px: close them if the window grows past it
+window.matchMedia('(min-width: 835px)').addEventListener('change', (event) => {
+  if (event.matches && openSheet) setSheet(null)
+})
 document.addEventListener('click', (event) => {
   if (!more.contains(event.target)) setMore(false)
 })
