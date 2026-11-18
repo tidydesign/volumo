@@ -206,7 +206,24 @@ moreOverlay.className = 'more-overlay'
 moreOverlay.setAttribute('aria-hidden', 'true')
 document.body.append(moreOverlay)
 
+// More menu items start stacked 8px below the top of the closed box (tab-bar-sized)
+// and spread to their places while it grows. Closed, the visible part of the box is
+// its bottom --rn-tabbar-height px, so that top edge sits at (box height − tab bar height).
+const moreBox = more.querySelector('.more')
+const moreItems = [...moreBox.querySelectorAll('.more__item, .more__feedback')]
+const MORE_ITEM_START_GAP = 8
+
+const setMoreItemOffsets = () => {
+  const tabbarHeight = parseFloat(getComputedStyle(moreBox).getPropertyValue('--rn-tabbar-height'))
+  const closedTop = moreBox.offsetHeight - tabbarHeight
+  moreItems.forEach((item) => {
+    const from = closedTop + MORE_ITEM_START_GAP - item.offsetTop
+    item.style.setProperty('--rn-item-from', `${from}px`)
+  })
+}
+
 const setMore = (open) => {
+  if (open) setMoreItemOffsets()
   more.classList.toggle('is-open', open)
   moreOverlay.classList.toggle('is-visible', open)
   document.querySelector('.dock').classList.toggle('is-more-open', open)
@@ -261,6 +278,18 @@ document.addEventListener('click', (event) => {
 })
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') setMore(false)
+})
+
+// Menu items fade in one by one, top to bottom: tag them and store their order in --i
+const STAGGER_TARGETS = {
+  '#nav-sheet': '.sheet__item',
+  '#profile-sheet': '.profile > *, .sheet__item',
+}
+Object.entries(STAGGER_TARGETS).forEach(([menu, items]) => {
+  document.querySelectorAll(`${menu} :is(${items})`).forEach((item, index) => {
+    item.classList.add('stagger')
+    item.style.setProperty('--i', index)
+  })
 })
 
 // Mini player: hidden until a track is played; play/pause synced with the track row

@@ -23,6 +23,16 @@ export const PLAYER = {
   marqueeSpeed: 207 / 7, // px per second (Figma: 207px in 7s, linear)
 }
 
+// Menus: delay between items appearing (mirrors --stagger-step in tokens.css)
+export const STAGGER_STEP = 0.01
+
+// Menus: panel reveal and item fade (mirrors --ease-out-quad / --duration-menu)
+export const MENU = {
+  ease: 'cubic-bezier(0.5, 1, 0.89, 1)', // ease-out quad
+  duration: 0.3,
+  itemOffset: -20, // px, navigation/profile items start 20px higher
+}
+
 export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 export const prefersReducedMotion = () => window.matchMedia(REDUCED_MOTION_QUERY).matches

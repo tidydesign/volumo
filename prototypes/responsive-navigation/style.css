@@ -206,24 +206,19 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   background-color: var(--vl-bg-secondary);
-  /* Figma strokes sit inside the box and take no space, so draw lines as inset shadows */
-  box-shadow: inset 0 1px 0 var(--vl-outline-secondary);
-  opacity: 0;
+  /* No top stroke: the header's bottom border already separates them */
+  /* Slides down from under the header: clip-path reveal from the top edge, items stagger in */
   visibility: hidden;
-  transform: translateY(-8px);
+  clip-path: inset(0 0 100% 0);
   transition:
-    opacity var(--duration-fast) var(--ease-default),
-    transform var(--duration-fast) var(--ease-default),
-    visibility 0s linear var(--duration-fast);
+    clip-path var(--duration-menu) var(--ease-out-quad),
+    visibility 0s linear var(--duration-menu);
 }
 
 .sheet.is-open {
-  opacity: 1;
   visibility: visible;
-  transform: none;
-  transition:
-    opacity var(--duration-fast) var(--ease-default),
-    transform var(--duration-fast) var(--ease-default);
+  clip-path: inset(0);
+  transition: clip-path var(--duration-menu) var(--ease-out-quad);
 }
 
 .is-sheet-open {
@@ -1313,22 +1308,94 @@
   align-items: stretch;
   gap: var(--vl-pad-tiny);
   padding: var(--vl-pad-tiny);
-  opacity: 0;
+  /*
+    Closed: the box is the size of the tab bar and sits right behind it
+    (clipped to its bottom 56px, moved down onto the tab bar, under it in z).
+    Open: it slides up into place and grows to full height at the same time.
+    The growth is a clip-path from the top (an exception to the transform/opacity
+    rule — scaleY would squash the pill corners and the items).
+  */
+  z-index: 0;
   visibility: hidden;
-  transform: translateY(8px);
+  transform: translateY(calc(var(--rn-tabbar-height) + var(--vl-pad-tiny)));
+  clip-path: inset(calc(100% - var(--rn-tabbar-height)) 0 0 0 round var(--vl-radius-pill));
   transition:
-    opacity var(--duration-fast) var(--ease-default),
-    transform var(--duration-fast) var(--ease-default),
-    visibility 0s linear var(--duration-fast);
+    transform var(--duration-menu) var(--ease-out-quad),
+    clip-path var(--duration-menu) var(--ease-out-quad),
+    visibility 0s linear var(--duration-menu);
+}
+
+/* The tab bar stays on top of the box while it is tucked behind it */
+.tabbar {
+  position: relative;
+  z-index: 1;
 }
 
 .tabbar-wrap.is-open .more {
-  opacity: 1;
   visibility: visible;
-  transform: none;
+  transform: translateY(0);
+  clip-path: inset(0 round var(--vl-radius-pill));
   transition:
-    opacity var(--duration-fast) var(--ease-default),
-    transform var(--duration-fast) var(--ease-default);
+    transform var(--duration-menu) var(--ease-out-quad),
+    clip-path var(--duration-menu) var(--ease-out-quad);
+}
+
+/*
+  Items start stacked 8px below the top edge of the closed box (the tab-bar-sized
+  pill) and spread out to their places as the box grows — same duration and easing.
+  --rn-item-from is each item's start offset, measured in main.js on open.
+*/
+@keyframes rn-more-item-in {
+  from {
+    transform: translateY(var(--rn-item-from, 0px));
+  }
+}
+
+.tabbar-wrap.is-open .more :is(.more__item, .more__feedback) {
+  animation: rn-more-item-in var(--duration-menu) var(--ease-out-quad) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabbar-wrap.is-open .more :is(.more__item, .more__feedback) {
+    animation: none;
+  }
+}
+
+/*
+  Menu items fade in one after another, top to bottom, --stagger-step apart (--i is the
+  item index, set in main.js). Used by the navigation and profile sheets.
+  An animation with backwards fill (not a delayed transition), so it only holds
+  opacity 0 until each item's turn and then leaves hover states alone.
+*/
+@keyframes rn-stagger-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Navigation + profile sheets: items also drop in from 20px above */
+@keyframes rn-stagger-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--menu-item-offset));
+  }
+}
+
+.sheet.is-open .stagger {
+  animation: rn-stagger-in var(--duration-menu) var(--ease-out-quad) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger-step));
+}
+
+
+.sheet.is-open .stagger {
+  animation-name: rn-stagger-drop-in;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet.is-open .stagger {
+    animation: none;
+  }
 }
 
 .more__list {

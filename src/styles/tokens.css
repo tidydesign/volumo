@@ -40,6 +40,11 @@
   --ease-in-out: ease-in-out;
   --duration-wave-step: 300ms;
   --duration-player-hover: 100ms;
+  /* Menus (More, navigation, profile): items appear one by one, top to bottom */
+  --stagger-step: 10ms;
+  --ease-out-quad: cubic-bezier(0.5, 1, 0.89, 1);
+  --duration-menu: 300ms;
+  --menu-item-offset: -20px; /* navigation/profile items start 20px higher */
 }
 
 /*
