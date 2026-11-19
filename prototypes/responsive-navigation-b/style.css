@@ -1,0 +1,2161 @@
+/*
+  Responsive navigation — Volumo UI 2.0
+  Mobile-first. Breakpoints: Tablet ≥480, Laptop ≥835, Desktop ≥1281.
+  Variant B: one menu (profile + catalog + account) behind the avatar + burger.
+  Mobile/Tablet: header with search + avatar/burger, floating tab bar.
+  Laptop: header with links + floating icon toolbar.
+  Desktop: header with links + personal sidebar.
+*/
+
+.rn {
+  --rn-dock-space: 152px; /* room under the content for the floating dock */
+
+  font-family: var(--vl-font-family);
+  font-size: var(--vl-text-main-size);
+  line-height: var(--vl-text-main-line);
+  font-weight: var(--vl-font-weight-medium);
+  color: var(--vl-content-main);
+  background-color: var(--vl-bg-main);
+}
+
+.rn a {
+  text-decoration: none;
+}
+
+:where(.rn) button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.rn ul {
+  list-style: none;
+}
+
+.rn img {
+  flex-shrink: 0;
+}
+
+/* Shared bits */
+
+.icon-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.icon-btn:hover,
+.header__nav-link:hover,
+.header__search:hover,
+.sidebar__link:hover,
+.playlist:hover,
+.tabbar__item:hover,
+.release__link:hover {
+  opacity: 0.72;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-basic-grey);
+}
+
+.floating {
+  display: flex;
+  align-items: center;
+  border-radius: var(--vl-radius-pill);
+  background-color: var(--vl-bg-secondary);
+  box-shadow: var(--vl-shadow-floating), var(--vl-shadow-floating-inset);
+}
+
+/* ───────── Header ───────── */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--vl-header-height);
+  background-color: var(--vl-bg-secondary);
+  border-bottom: 1px solid var(--vl-outline-secondary);
+}
+
+.header__inner {
+  display: flex;
+  height: 100%;
+  max-width: var(--vl-container-max);
+  margin: 0 auto;
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 var(--vl-pad-big);
+  border-right: 1px solid var(--vl-outline-secondary);
+}
+
+/* Logo is 20px tall at every breakpoint */
+.header__logo {
+  width: auto;
+  height: 20px;
+}
+
+.header__main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--vl-pad-extra-large);
+  min-width: 0;
+  padding-left: var(--vl-pad-big);
+}
+
+.header__nav {
+  display: none;
+}
+
+.header__nav-list {
+  display: flex;
+  gap: var(--vl-pad-extra-large);
+}
+
+.header__nav-link {
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.header__search {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-small);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.header__search-label {
+  display: none;
+  white-space: nowrap;
+}
+
+.header__user {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--vl-pad-tiny);
+  padding: 0 var(--vl-pad-big) 0 var(--vl-pad-large);
+}
+
+.header__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--vl-radius-round);
+  object-fit: cover;
+}
+
+/*
+  Header (Figma "Mobile - Navigation 02-1/02-2"): search sits right after the logo
+  below 835px; avatar (+ name on desktop) + burger opens the menu, burger turns into ✕.
+*/
+.header__profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header__menu-icon--close,
+.header__profile[aria-expanded="true"] .header__menu-icon--open {
+  display: none;
+}
+
+.header__profile[aria-expanded="true"] .header__menu-icon--close {
+  display: block;
+}
+
+.header__user-info {
+  text-align: left;
+}
+
+/*
+  Sheets: full-screen panels under the header (navigation and profile).
+  Header colour, page and dock hidden underneath, content scrolls inside.
+*/
+.sheet {
+  position: fixed;
+  top: var(--vl-header-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 35;
+  /*
+    The sheet only clips (for the slide-in animation); the scrolling happens in
+    .sheet__body. Touch scrolling on an element that also has clip-path is
+    unreliable in WebKit (Safari and Chrome on iOS).
+  */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--vl-bg-secondary);
+  /* No top stroke: the header's bottom border already separates them */
+  /* Slides down from under the header: clip-path reveal from the top edge, items stagger in */
+  visibility: hidden;
+  clip-path: inset(0 0 100% 0);
+  transition:
+    clip-path var(--duration-menu) var(--ease-out-quad),
+    visibility 0s linear var(--duration-menu);
+}
+
+.sheet.is-open {
+  visibility: visible;
+  clip-path: inset(0);
+  transition: clip-path var(--duration-menu) var(--ease-out-quad);
+}
+
+.is-sheet-open {
+  overflow: hidden;
+}
+
+.sheet__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sheet__body > * {
+  flex-shrink: 0;
+}
+
+.sheet__body--menu {
+  gap: 16px;
+}
+
+.sheet__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.sheet__item:hover {
+  opacity: 0.72;
+}
+
+.sheet__label {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  white-space: nowrap;
+}
+
+.sheet__value {
+  color: var(--vl-content-secondary);
+}
+
+.sheet__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-point);
+  padding: var(--vl-pad-tiny) 0;
+  box-shadow: inset 0 1px 0 var(--vl-outline-secondary);
+}
+
+/* Profile block (Figma "02-2"): avatar 64 + name and balance, Top up button under it */
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile__avatar {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--vl-radius-round);
+  object-fit: cover;
+}
+
+.profile__info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.profile__name {
+  font-size: var(--vl-text-large-size);
+  line-height: var(--vl-text-large-line);
+}
+
+/* €12.81 | 30% OFF: 10px either side of a 16px divider */
+.profile__numbers {
+  display: flex;
+  align-items: center;
+}
+
+.profile__number + .profile__number {
+  margin-left: 10px;
+  padding-left: 10px;
+  box-shadow: inset 1px 0 0 var(--vl-outline-secondary);
+}
+
+.profile__topup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-tiny);
+  width: 100%;
+  height: 48px;
+  padding: 12px 16px 12px 12px;
+  background-color: var(--vl-action-primary);
+  font-weight: var(--vl-font-weight-semibold);
+  color: var(--vl-basic-white);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.profile__topup:hover {
+  opacity: 0.88;
+}
+
+.profile__number--discount {
+  color: var(--vl-action-green);
+}
+
+/* Page dims under tablet+ sheets (Figma: #04070a at 64%, from the header down, over the dock) */
+.sheet-overlay {
+  position: fixed;
+  top: var(--vl-header-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 34;
+  background-color: var(--vl-basic-black);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-fast) var(--ease-default),
+    visibility 0s linear var(--duration-fast);
+}
+
+.sheet-overlay.is-visible {
+  opacity: 0.64;
+  visibility: visible;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+/* Currency icon is two vectors in Figma, placed as in the Icons/24px/Currency frame */
+.icon-currency {
+  position: relative;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+}
+
+.icon-currency img {
+  position: absolute;
+  max-width: none;
+}
+
+.icon-currency__a {
+  top: 2.67px;
+  left: 0.83px;
+  width: 8.55px;
+  height: 10.67px;
+}
+
+.icon-currency__b {
+  top: 4.58px;
+  left: 10.92px;
+  width: 8.44px;
+  height: 12.5px;
+}
+
+.header__user-info {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.header__user-balance {
+  color: var(--vl-content-secondary);
+}
+
+/* ───────── Layout ───────── */
+
+.layout {
+  max-width: var(--vl-container-max);
+  margin: 0 auto;
+}
+
+.layout__content {
+  min-width: 0;
+  padding-bottom: var(--rn-dock-space);
+}
+
+.sidebar {
+  display: none;
+}
+
+/* ───────── Release ───────── */
+
+.release {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-large);
+  margin: 0 var(--vl-pad-big);
+  padding: var(--vl-pad-big) 0 var(--vl-pad-medium);
+  border-bottom: 1px solid var(--vl-outline-main);
+}
+
+.release__cover {
+  width: 100%;
+  max-width: 156px;
+  aspect-ratio: 1;
+}
+
+.release__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.release__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.release__head {
+  margin-bottom: var(--vl-pad-small);
+}
+
+.release__title {
+  font-size: var(--vl-title-h3-size);
+  line-height: var(--vl-title-h3-line);
+  font-weight: var(--vl-font-weight-semibold);
+}
+
+.release__title span {
+  margin-left: 4px;
+}
+
+/* On mobile/tablet the share button sits in the top-right corner, next to the cover */
+.release__marks {
+  position: absolute;
+  top: var(--vl-pad-big);
+  right: 0;
+}
+
+.release__award {
+  display: none;
+}
+
+.release__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  color: var(--vl-content-secondary);
+}
+
+.release__link {
+  color: var(--vl-action-light);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.release__credits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--vl-pad-big);
+  margin-top: var(--vl-pad-big);
+}
+
+.release__credit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-point);
+}
+
+.release__label {
+  color: var(--vl-content-secondary);
+}
+
+.release__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--vl-pad-tiny);
+}
+
+.release__tracklist {
+  margin-top: var(--vl-pad-medium);
+  border-top: 1px solid var(--vl-outline-main);
+}
+
+.release__options {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-big);
+  padding: var(--vl-pad-tiny) 0;
+  border-bottom: 1px solid var(--vl-outline-main);
+  color: var(--vl-action-neutral);
+}
+
+.release__count {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.release__save {
+  display: none;
+  color: var(--vl-action-neutral);
+  white-space: nowrap;
+}
+
+.release__tracks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-medium);
+  padding: var(--vl-pad-tiny) 0;
+}
+
+/* Track: info row + waveform (only for the current track) */
+
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-big);
+  scroll-margin: 25vh 0;
+}
+
+.track__play-icon--pause {
+  fill: var(--vl-action-black);
+}
+
+.track__play-icon--pause,
+.track.is-playing .track__play-icon--play {
+  display: none;
+}
+
+.track.is-playing .track__play-icon--pause {
+  display: block;
+}
+
+/* Mobile: the playing track swaps "+ | cart" for a "⋯" button (Figma) */
+.track__more {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--vl-small-button-height);
+  height: var(--vl-small-button-height);
+  background-color: var(--vl-action-black);
+}
+
+@media (max-width: 479.98px) {
+  .track.is-current .track__actions .buy-compact {
+    display: none;
+  }
+
+  .track.is-current .track__more {
+    display: flex;
+  }
+}
+
+/*
+  Waveform (Figma "Waveform" / "Wave"): Start 96 | parts 1–4 | End 96, 48px tall.
+  Part 3 holds the played segment + orange playhead + elapsed time.
+  Mobile shows Start | Part 3 | End only.
+*/
+.waveform {
+  display: none;
+  align-items: flex-start;
+  height: 48px;
+}
+
+.track.is-current .waveform {
+  display: flex;
+}
+
+.waveform__start,
+.waveform__end {
+  position: relative;
+  flex-shrink: 0;
+  width: 96px;
+  height: 32px;
+}
+
+.waveform__part {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  overflow: hidden;
+}
+
+.waveform__part--1,
+.waveform__part--2,
+.waveform__part--4 {
+  display: none;
+}
+
+.waveform img {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  max-width: none;
+}
+
+.waveform__path-high {
+  height: 30px;
+}
+
+.waveform__path-low {
+  height: 12px;
+}
+
+.waveform__part--1 img {
+  left: -150px;
+}
+
+.waveform__part--2 .waveform__path-high {
+  left: calc(50% - 68px);
+  transform: translateX(-50%);
+}
+
+.waveform__part--2 .waveform__path-low,
+.waveform__part--4 .waveform__path-low {
+  left: calc(50% - 12px);
+  transform: translateX(-50%);
+}
+
+.waveform__part--4 .waveform__path-high {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.waveform__part--3 {
+  overflow: visible;
+}
+
+.waveform__clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.waveform__part--3 .waveform__clip img {
+  left: -161px;
+}
+
+.waveform__played {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 64px;
+  height: 32px;
+}
+
+.waveform__played img {
+  position: static;
+}
+
+.waveform__playhead {
+  position: absolute;
+  right: 0;
+  bottom: -16px;
+  width: 1px;
+  height: 48px;
+  background-color: var(--vl-waveform-played);
+}
+
+.waveform__time {
+  position: absolute;
+  right: 4px;
+  bottom: -4px;
+  transform: translateY(100%);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  font-weight: var(--vl-font-weight-semibold);
+  color: var(--vl-content-secondary);
+  white-space: nowrap;
+}
+
+.waveform__end .waveform__time {
+  right: 0;
+}
+
+.waveform__end-high {
+  height: 28px;
+}
+
+.waveform__end-low {
+  height: 12px;
+}
+
+/* Track row */
+
+.track__row {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-medium);
+  min-height: var(--vl-small-button-height);
+}
+
+.track__main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.track__play {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--vl-small-button-height);
+  height: var(--vl-small-button-height);
+  border-radius: var(--vl-radius-pill);
+  background-color: var(--vl-action-light);
+}
+
+.track__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.track__title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.track__title span {
+  margin-left: 4px;
+}
+
+.track__artist,
+.track__details {
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-action-neutral);
+}
+
+.track__genre {
+  display: none;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.track__details {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+}
+
+.track__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Buy buttons */
+
+.buy {
+  display: none;
+  gap: var(--vl-pad-point);
+}
+
+.buy__group {
+  display: flex;
+  gap: 1px;
+}
+
+.buy__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-point);
+  height: var(--vl-small-button-height);
+  padding: var(--vl-pad-point) 12px var(--vl-pad-point) var(--vl-pad-tiny);
+  background-color: var(--vl-action-black);
+  color: var(--vl-action-light);
+  white-space: nowrap;
+}
+
+.buy__btn--price {
+  width: 80px;
+}
+
+.buy__btn--icon {
+  padding: var(--vl-pad-point);
+}
+
+.buy-compact {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background-color: var(--vl-action-black);
+}
+
+.buy-compact__btn {
+  display: flex;
+  padding: var(--vl-pad-point);
+}
+
+.buy-compact__btn + .buy-compact__btn::before {
+  content: "";
+  align-self: center;
+  width: 1px;
+  height: 12px;
+  margin: 0 5px 0 -5px;
+  background-color: var(--vl-outline-action);
+}
+
+/* ───────── Dock (floating bottom controls) ───────── */
+
+.dock {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30; /* above the More overlay (25) and the header (20) */
+  pointer-events: none;
+  /* Fixed to the viewport, so 100cqw = page width without the scrollbar.
+     Used to size the mini player from the release cover width. */
+  container-type: inline-size;
+  /* iOS Chrome: fixed elements can stay pinned above the real bottom after the
+     browser toolbar collapses. main.js measures that gap and moves the dock down. */
+  transform: translateY(var(--rn-viewport-gap, 0px));
+}
+
+/* Invisible probe: where the browser thinks "fixed bottom: 0" is */
+.viewport-probe {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.dock__inner {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  grid-template-areas:
+    "player filters volume"
+    "tabbar tabbar tabbar";
+  align-items: center;
+  row-gap: var(--vl-pad-tiny);
+  max-width: var(--vl-container-max);
+  margin: 0 auto;
+  padding: 0 16px max(16px, env(safe-area-inset-bottom));
+}
+
+.dock__inner > * {
+  pointer-events: auto;
+}
+
+/*
+  Hide on scroll (laptop, tablet, mobile).
+  Scrolling down (.dock.is-nav-hidden): the navigation panel slides off-screen
+  and Filters drops into the row with the player and volume. Scrolling up brings
+  it all back. Uses the `translate` property so it composes with Filters' :active scale.
+  Drop distances per breakpoint live in --rn-filters-drop / --rn-side-drop.
+*/
+.dock__inner {
+  --rn-dock-button: 44px;
+  --rn-tabbar-height: 56px;
+  --rn-nav-offscreen: calc(100% + 48px); /* clears the bottom inset and the shadow */
+
+  /* Mobile: player, Filters and volume already share a row — the whole row drops into the tab bar's place */
+  --rn-filters-drop: calc(var(--rn-tabbar-height) + var(--vl-pad-tiny));
+  --rn-side-drop: var(--rn-filters-drop);
+}
+
+/* .player has its own transition list (appear + scroll) further down */
+.toolbar,
+.tabbar-wrap {
+  transition: translate var(--duration-base) var(--ease-default);
+}
+
+.dock__volume {
+  transition:
+    translate var(--duration-base) var(--ease-default),
+    opacity var(--duration-fast) var(--ease-default);
+}
+
+.dock.is-nav-hidden .toolbar,
+.dock.is-nav-hidden .tabbar-wrap {
+  translate: 0 var(--rn-nav-offscreen);
+}
+
+.dock.is-nav-hidden .filters {
+  translate: 0 var(--rn-filters-drop);
+}
+
+.dock.is-nav-hidden .player,
+.dock.is-nav-hidden .dock__volume {
+  translate: 0 var(--rn-side-drop);
+}
+
+/* Player: round button on mobile/tablet, pill with track on laptop/desktop */
+.player {
+  grid-area: player;
+  justify-content: center;
+  gap: var(--vl-pad-tiny);
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/*
+  Hidden until a track is played. Appears from +50% of its height, fading in.
+  Uses `transform`; scroll-hide uses the separate `translate` property, so they compose.
+*/
+.player:not(.is-visible) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(50%);
+}
+
+/* Transitions only once shown: otherwise the page load itself would animate the player out */
+.player.is-visible {
+  transition:
+    translate var(--duration-base) var(--ease-default),
+    opacity var(--duration-base) var(--ease-default),
+    transform var(--duration-base) var(--ease-default);
+}
+
+.player__cover,
+.player__title,
+.player__toggle {
+  display: none;
+}
+
+.player__cover {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+/*
+  Equalizer (Figma "Sound Icon"): frames 1 → 2 → 3 → 4 → 1, each step 300ms ease-out-back.
+  Frames 1 and 3 are flat bars, 2 and 4 carry per-bar heights (--s2 / --s4 as scaleY).
+  Paused: flat and still.
+*/
+.wave {
+  flex-shrink: 0;
+}
+
+.wave__bar {
+  fill: var(--vl-basic-white);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rn-wave calc(4 * var(--duration-wave-step)) infinite;
+}
+
+@keyframes rn-wave {
+  0%,
+  50%,
+  100% {
+    transform: scaleY(1);
+    animation-timing-function: var(--ease-out-back);
+  }
+
+  25% {
+    transform: scaleY(var(--s2));
+    animation-timing-function: var(--ease-out-back);
+  }
+
+  75% {
+    transform: scaleY(var(--s4));
+    animation-timing-function: var(--ease-out-back);
+  }
+}
+
+.player.is-paused .wave__bar {
+  animation: none;
+}
+
+/*
+  Track title marquee (Figma "Track"): two copies slide left by one copy width,
+  linear, then loop seamlessly. Speed matches Figma (207px in 7s); main.js sets
+  --rn-marquee-duration from the measured copy width. Hover pauses it.
+  The right 25% of the box fades out; --rn-title-cut moves the fade left to make
+  room for the play/pause button (Figma: track 172 → 144).
+*/
+@property --rn-title-cut {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.player__title {
+  --rn-title-fade-end: calc(100% - var(--rn-title-cut));
+  --rn-marquee-gap: 8px; /* Figma: copies 207px apart */
+
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(var(--rn-title-fade-end) * 0.75), transparent var(--rn-title-fade-end));
+  mask-image: linear-gradient(to right, #000 calc(var(--rn-title-fade-end) * 0.75), transparent var(--rn-title-fade-end));
+  transition: --rn-title-cut var(--duration-player-hover) var(--ease-in-out);
+}
+
+.player__marquee {
+  display: flex;
+  width: max-content;
+  animation: rn-marquee var(--rn-marquee-duration, 7s) linear infinite;
+}
+
+.player__copy {
+  padding-right: var(--rn-marquee-gap);
+}
+
+@keyframes rn-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Stops only while hovered — keeps running when the track is paused */
+.player:hover .player__marquee {
+  animation-play-state: paused;
+}
+
+/*
+  Play/pause (Figma "Play-Pause"): appears on hover over the player (100ms ease-in-out)
+  and hides again on leave, paused or not. Grey by default, white on its own hover.
+*/
+.player__toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: var(--vl-icon-size);
+  height: var(--vl-icon-size);
+  margin-top: calc(var(--vl-icon-size) / -2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-player-hover) var(--ease-in-out);
+}
+
+.player:hover .player__toggle,
+.player:has(:focus-visible) .player__toggle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.player:hover .player__title,
+.player:has(:focus-visible) .player__title {
+  --rn-title-cut: calc(var(--vl-icon-size) + var(--vl-pad-tiny));
+}
+
+.player__icon {
+  position: absolute;
+  inset: 0;
+  fill: var(--vl-basic-white);
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-player-hover) var(--ease-in-out);
+}
+
+.player__toggle:hover .player__icon,
+.player__toggle:focus-visible .player__icon {
+  opacity: 1;
+}
+
+.player__icon--play,
+.player.is-paused .player__icon--pause {
+  visibility: hidden;
+}
+
+.player.is-paused .player__icon--play {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* base.css shortens durations; infinite loops would then flicker, so stop them */
+  .wave__bar,
+  .player__marquee {
+    animation: none;
+  }
+}
+
+.dock__volume {
+  grid-area: volume;
+  width: 44px;
+  height: 44px;
+}
+
+/*
+  Volume (mobile/tablet round button, laptop controls panel).
+  Icon is grey (Figma #747c8a ≈ white at --opacity-muted) and turns white while
+  active; the slider pops up above it on hover. Touch screens have hardware
+  volume, so the whole control is hidden there.
+*/
+.volume {
+  position: relative;
+  display: flex;
+}
+
+.volume__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.volume--end .volume__button {
+  width: 44px;
+  height: 44px;
+}
+
+.volume__button img {
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-player-hover) var(--ease-in-out);
+}
+
+.volume:hover .volume__button img,
+.volume:has(:focus-visible) .volume__button img {
+  opacity: 1;
+}
+
+/* Wrapper reaches down to the button so the pointer can travel into the panel without losing hover */
+.volume__popover {
+  position: absolute;
+  bottom: 100%;
+  padding-bottom: var(--vl-pad-tiny);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity var(--duration-hover) var(--ease-out),
+    transform var(--duration-hover) var(--ease-out),
+    visibility 0s linear var(--duration-hover);
+}
+
+.volume--end .volume__popover {
+  right: 0;
+}
+
+/* Laptop: aligned to the controls panel's left edge (panel padding is 16px), 8px above the panel */
+.volume--panel .volume__popover {
+  left: -16px;
+  /* the controls panel adds 12px below the icon, so reach further down */
+  padding-bottom: calc(var(--vl-pad-tiny) + 12px);
+}
+
+.volume:hover .volume__popover,
+.volume:has(:focus-visible) .volume__popover {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity var(--duration-hover) var(--ease-out),
+    transform var(--duration-hover) var(--ease-out);
+}
+
+/*
+  Figma (Laptop, Frame 1412): vertical pill 44×152, padding 16, bar 4×120.
+  Bar = rest on top (#303b47) + level at the bottom (white), 2px apart, no thumb.
+  --rn-volume-n (0–100, set from JS) splits the bar.
+*/
+.volume__panel {
+  --rn-volume-n: 50;
+
+  position: relative;
+  justify-content: center;
+  width: 44px;
+  height: 152px;
+  padding: var(--vl-pad-big) 16px;
+}
+
+.volume__bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 4px;
+  height: 120px;
+}
+
+.volume__rest,
+.volume__level {
+  min-height: 0;
+}
+
+.volume__rest {
+  flex: calc(100 - var(--rn-volume-n)) 1 0;
+  background-color: var(--vl-action-dark-hover);
+}
+
+.volume__level {
+  flex: var(--rn-volume-n) 1 0;
+  background-color: var(--vl-basic-white);
+}
+
+/* Native vertical range on top of the bar: invisible, but handles drag, wheel and keys */
+.volume__range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  writing-mode: vertical-lr;
+  direction: rtl;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .volume {
+    display: none;
+  }
+}
+
+/* Filters */
+
+.filters {
+  grid-area: filters;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-big);
+  height: 44px;
+  padding: 12px 12px 12px 16px;
+  border-radius: 64px;
+  background-image: linear-gradient(to bottom, var(--vl-action-primary), var(--vl-action-primary-translucent));
+  -webkit-backdrop-filter: blur(var(--vl-blur-primary));
+  backdrop-filter: blur(var(--vl-blur-primary));
+  box-shadow: var(--vl-shadow-primary-inset);
+  font-weight: var(--vl-font-weight-semibold);
+  color: var(--vl-basic-white);
+  transition:
+    transform var(--duration-fast) var(--ease-default),
+    translate var(--duration-base) var(--ease-default),
+    opacity var(--duration-fast) var(--ease-default);
+}
+
+.filters:active {
+  transform: scale(0.96);
+}
+
+.filters__label {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+}
+
+.filters__count {
+  padding: 4px 12px;
+  border-radius: 24px;
+  background-color: var(--vl-action-primary-pressed);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+}
+
+/* Tab bar (mobile + tablet) */
+
+.tabbar-wrap {
+  position: relative;
+  grid-area: tabbar;
+}
+
+.tabbar {
+  display: flex;
+  height: 56px;
+  overflow: hidden;
+}
+
+/*
+  "More" menu (Figma "Mobile - Open 01"): the whole sidebar menu in a floating
+  panel, exactly as wide as the tab bar, 8px above it. Padding 8, gap 8,
+  items 48px tall with 12px side padding, "Share feedback" as a full-width pill.
+*/
+.more {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--vl-pad-tiny));
+  left: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--vl-pad-tiny);
+  padding: var(--vl-pad-tiny);
+  /*
+    Closed: the box is the size of the tab bar and sits right behind it
+    (clipped to its bottom 56px, moved down onto the tab bar, under it in z).
+    Open: it slides up into place and grows to full height at the same time.
+    The growth is a clip-path from the top (an exception to the transform/opacity
+    rule — scaleY would squash the pill corners and the items).
+  */
+  z-index: 0;
+  visibility: hidden;
+  transform: translateY(calc(var(--rn-tabbar-height) + var(--vl-pad-tiny)));
+  clip-path: inset(calc(100% - var(--rn-tabbar-height)) 0 0 0 round var(--vl-radius-pill));
+  transition:
+    transform var(--duration-menu) var(--ease-out-quad),
+    clip-path var(--duration-menu) var(--ease-out-quad),
+    visibility 0s linear var(--duration-menu);
+}
+
+/* The tab bar stays on top of the box while it is tucked behind it */
+.tabbar {
+  position: relative;
+  z-index: 1;
+}
+
+.tabbar-wrap.is-open .more {
+  visibility: visible;
+  transform: translateY(0);
+  clip-path: inset(0 round var(--vl-radius-pill));
+  transition:
+    transform var(--duration-menu) var(--ease-out-quad),
+    clip-path var(--duration-menu) var(--ease-out-quad);
+}
+
+/*
+  Items start stacked 8px below the top edge of the closed box (the tab-bar-sized
+  pill) and spread out to their places as the box grows — same duration and easing.
+  --rn-item-from is each item's start offset, measured in main.js on open.
+*/
+@keyframes rn-more-item-in {
+  from {
+    transform: translateY(var(--rn-item-from, 0px));
+  }
+}
+
+/* …and fade in top to bottom, --stagger-step apart, like the sheets */
+.tabbar-wrap.is-open .more :is(.more__item, .more__feedback) {
+  animation:
+    rn-more-item-in var(--duration-menu) var(--ease-out-quad) backwards,
+    rn-stagger-in var(--duration-menu) var(--ease-out-quad) calc(var(--i, 0) * var(--stagger-step)) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabbar-wrap.is-open .more :is(.more__item, .more__feedback) {
+    animation: none;
+  }
+}
+
+/*
+  Menu items fade in one after another, top to bottom, --stagger-step apart (--i is the
+  item index, set in main.js). Used by the navigation and profile sheets.
+  An animation with backwards fill (not a delayed transition), so it only holds
+  opacity 0 until each item's turn and then leaves hover states alone.
+*/
+@keyframes rn-stagger-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Navigation + profile sheets: items also drop in from 20px above */
+@keyframes rn-stagger-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--menu-item-offset));
+  }
+}
+
+.sheet.is-open .stagger {
+  animation: rn-stagger-drop-in var(--duration-menu) var(--ease-out-quad) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger-step));
+}
+
+/*
+  Closing = the opening in reverse: items leave bottom to top (the last one first,
+  delay counted from the end, --n = number of items), back to their start state.
+  Separate keyframes on purpose: reusing the opening ones would just continue the
+  already finished animation and jump to its end, hiding everything at once.
+  Fill "both": visible until each item's turn, hidden after it.
+*/
+@keyframes rn-stagger-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes rn-stagger-drop-out {
+  to {
+    opacity: 0;
+    transform: translateY(var(--menu-item-offset));
+  }
+}
+
+@keyframes rn-more-item-out {
+  to {
+    transform: translateY(var(--rn-item-from, 0px));
+  }
+}
+
+.sheet.is-closing .stagger {
+  animation: rn-stagger-drop-out var(--duration-menu) var(--ease-out-quad) both;
+  animation-delay: calc((var(--n, 1) - 1 - var(--i, 0)) * var(--stagger-step));
+}
+
+.tabbar-wrap.is-closing .more :is(.more__item, .more__feedback) {
+  animation:
+    rn-more-item-out var(--duration-menu) var(--ease-out-quad) both,
+    rn-stagger-out var(--duration-menu) var(--ease-out-quad) calc((var(--n, 1) - 1 - var(--i, 0)) * var(--stagger-step)) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet.is-open .stagger,
+  .sheet.is-closing .stagger,
+  .tabbar-wrap.is-closing .more :is(.more__item, .more__feedback) {
+    animation: none;
+  }
+}
+
+.more__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.more__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 12px;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.more__label {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  white-space: nowrap;
+}
+
+.more__feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-tiny);
+  height: 48px;
+  padding: 12px;
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-dark);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.more__item:hover,
+.more__feedback:hover {
+  opacity: 0.72;
+}
+
+/* Open: More turns into Close (highlighted), the other tabs go grey */
+.tabbar__more-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--vl-pad-point);
+}
+
+.tabbar__more-state--open,
+.tabbar-wrap.is-open .tabbar__more-state--closed {
+  display: none;
+}
+
+.tabbar-wrap.is-open .tabbar__more-state--open {
+  display: flex;
+}
+
+.tabbar-wrap.is-open .tabbar__more {
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-dark);
+}
+
+.tabbar-wrap.is-open .tabbar__item:not(.tabbar__more) {
+  opacity: var(--opacity-muted);
+}
+
+/* Page dims under the open menu (Figma: #04070a at 24%); the player row fades out */
+.more-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background-color: var(--vl-basic-black);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-fast) var(--ease-default),
+    visibility 0s linear var(--duration-fast);
+}
+
+.more-overlay.is-visible {
+  opacity: 0.24;
+  visibility: visible;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.dock.is-more-open :is(.player, .filters, .dock__volume) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tabbar__item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-point);
+  height: 48px;
+  margin: 4px;
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  font-weight: var(--vl-font-weight-semibold);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+/* Toolbar + controls (laptop) */
+
+.toolbar,
+.controls {
+  display: none;
+}
+
+/*
+  No gaps between items: the 24px spacing is the items' own padding (12 + 12),
+  so the pointer goes straight from one item to the next. Otherwise every gap
+  is a dead zone where all labels collapse and all icons flash back to white.
+*/
+.toolbar {
+  grid-area: toolbar;
+  height: 44px;
+  padding: 0 var(--vl-pad-point);
+}
+
+.toolbar__item {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 12px;
+  transition: opacity var(--duration-hover) var(--ease-out);
+}
+
+/*
+  Label reveal: the wrapper grows from 0 to the text width (grid 0fr → 1fr),
+  the text slides in from the left and fades in. Width animation is an
+  intentional exception to the transform/opacity rule — neighbours must move.
+*/
+.toolbar__label {
+  display: grid;
+  grid-template-columns: 0fr;
+  margin-left: 0;
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  font-weight: var(--vl-font-weight-semibold);
+  white-space: nowrap;
+  transition:
+    grid-template-columns var(--duration-hover) var(--ease-out),
+    margin-left var(--duration-hover) var(--ease-out);
+}
+
+.toolbar__label-text {
+  min-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    opacity var(--duration-hover) var(--ease-out),
+    transform var(--duration-hover) var(--ease-out);
+}
+
+.toolbar__item:hover .toolbar__label,
+.toolbar__item:focus-visible .toolbar__label {
+  grid-template-columns: 1fr;
+  margin-left: var(--vl-pad-tiny);
+}
+
+.toolbar__item:hover .toolbar__label-text,
+.toolbar__item:focus-visible .toolbar__label-text {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hovered item stays white, the rest fade to grey */
+.toolbar:has(.toolbar__item:is(:hover, :focus-visible)) .toolbar__item:not(:hover, :focus-visible) {
+  opacity: var(--opacity-muted);
+}
+
+.controls {
+  grid-area: controls;
+  justify-self: end;
+  gap: var(--vl-pad-large);
+  height: 44px;
+  padding: 12px 16px;
+}
+
+/* All icons grey (white at --opacity-muted ≈ #747c8a); the hovered one turns white */
+.controls .icon-btn img {
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-player-hover) var(--ease-in-out);
+}
+
+.controls .icon-btn:hover {
+  opacity: 1;
+}
+
+.controls .icon-btn:hover img,
+.controls .icon-btn:focus-visible img {
+  opacity: 1;
+}
+
+/* ───────── Sidebar (desktop) ───────── */
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-point);
+  padding: 12px;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 12px;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.sidebar__link-label {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  padding: 4px 12px;
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-dark);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+}
+
+.pill--cart {
+  padding-left: 4px;
+}
+
+.pill__badge {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 16px;
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-bg-secondary);
+  color: var(--vl-content-secondary);
+}
+
+.sidebar__playlists {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 24px;
+}
+
+.sidebar__playlists-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: var(--vl-pad-tiny);
+  border-bottom: 1px solid var(--vl-outline-secondary);
+}
+
+.sidebar__playlists-title {
+  flex: 1;
+  font: inherit;
+  color: var(--vl-content-secondary);
+}
+
+.sidebar__playlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-big);
+  padding-top: var(--vl-pad-big);
+}
+
+.playlist {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.playlist__cover {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+
+.playlist__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-pad-point);
+  min-width: 0;
+}
+
+.playlist__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--vl-pad-tiny);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+}
+
+.playlist__meta .dot {
+  background-color: var(--vl-bg-neutral);
+}
+
+.sidebar__feedback {
+  padding: 24px;
+}
+
+.feedback-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vl-pad-tiny);
+  height: 48px;
+  padding: 16px 24px 16px 16px;
+  background-color: var(--vl-action-black);
+  font-weight: var(--vl-font-weight-semibold);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.feedback-btn:hover {
+  opacity: 0.72;
+}
+
+.sidebar__settings {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 60px;
+  padding: 0 24px;
+  border-top: 1px solid var(--vl-outline-main);
+}
+
+.volume-bar {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  height: 4px;
+}
+
+.volume-bar__level {
+  flex: 1;
+  background-color: var(--vl-action-neutral);
+}
+
+.volume-bar__rest {
+  width: 48px;
+  background-color: var(--vl-action-dark-hover);
+}
+
+.sidebar__settings-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ═════════ Tablet ≥480 ═════════ */
+
+@media (min-width: 480px) {
+  /* Full waveform: Start | 1 | 2 | 3 (played) | 4 | End */
+  .waveform__part--1,
+  .waveform__part--2,
+  .waveform__part--4 {
+    display: block;
+  }
+
+  .rn {
+    --rn-dock-space: 148px;
+  }
+
+  .release__cover {
+    max-width: 172px;
+  }
+
+  .release__credits {
+    gap: var(--vl-pad-large);
+  }
+
+  /* Track: title | genre | actions */
+  .track__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: var(--vl-pad-large);
+  }
+
+  .track__genre {
+    display: flex;
+  }
+
+  .dock__inner {
+    grid-template-areas:
+      ". filters ."
+      "player tabbar volume";
+    row-gap: 12px;
+    padding: 0 18px max(12px, env(safe-area-inset-bottom));
+
+    /* Filters drops from its own row to the centre line of the player/volume row */
+    --rn-filters-drop: calc(var(--rn-dock-button) / 2 + 12px + var(--rn-tabbar-height) / 2);
+    --rn-side-drop: 0px;
+  }
+
+  .tabbar-wrap {
+    justify-self: center;
+    width: 360px;
+  }
+}
+
+/* ═════════ Laptop ≥835 ═════════ */
+
+@media (min-width: 835px) {
+  .rn {
+    --rn-dock-space: 124px;
+  }
+
+  /* Header: links, search on the right */
+  .header__brand {
+    width: 136px;
+  }
+
+  .header__search {
+    margin-left: auto;
+  }
+
+  /* Catalog links are inline in the header here, so the menu drops them */
+  .sheet__group--catalog {
+    display: none;
+  }
+
+  .header__nav {
+    display: block;
+  }
+
+  /* Release: same as desktop — cover 2 / info 6 of an 8-column grid, 48px gutter.
+     Laptop: divider inset 16, content inset 24. */
+  .release {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: var(--vl-grid-gutter);
+    margin: 0 var(--vl-pad-big);
+    padding: var(--vl-pad-large) var(--vl-pad-tiny);
+  }
+
+  .release__cover {
+    grid-column: 1 / span 2;
+    max-width: none;
+  }
+
+  .release__body {
+    grid-column: 3 / span 6;
+  }
+
+  .release__head {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--vl-grid-gutter);
+    margin-bottom: 12px;
+  }
+
+  .release__title {
+    grid-column: 1 / span 4;
+  }
+
+  .release__marks {
+    position: static;
+    grid-column: 5 / span 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .release__award {
+    display: flex;
+    padding: 4px;
+    border-radius: var(--vl-radius-round);
+    background-color: var(--vl-action-black);
+  }
+
+  .release__credits {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--vl-grid-gutter);
+    margin-top: 24px;
+  }
+
+  .release__tracklist {
+    margin-top: 12px;
+  }
+
+  /* Options + tracks share a 6-column grid */
+  .release__options,
+  .track__row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--vl-grid-gutter);
+  }
+
+  .release__options {
+    min-height: 44px;
+    padding: 8px 0;
+  }
+
+  .release__count {
+    grid-column: 1 / span 2;
+  }
+
+  .release__save {
+    display: block;
+    grid-column: 3;
+  }
+
+  .release__actions {
+    grid-column: 4 / span 3;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .release__tracks {
+    gap: 16px;
+  }
+
+  .track__main {
+    grid-column: 1 / span 2;
+  }
+
+  .track__genre {
+    grid-column: 3 / span 2;
+  }
+
+  .track__actions {
+    grid-column: 5 / span 2;
+  }
+
+  .buy {
+    display: flex;
+  }
+
+  .buy-compact {
+    display: none;
+  }
+
+  /* Dock: player | toolbar | controls */
+  .dock__inner {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas:
+      ". filters ."
+      "player toolbar controls";
+    padding: 0 12px max(12px, env(safe-area-inset-bottom));
+
+    /* Filters drops one row (44px + 12px gap) into the toolbar's place */
+    --rn-filters-drop: calc(var(--rn-dock-button) + 12px);
+    --rn-side-drop: 0px;
+
+    /*
+      Mini player = release cover + 12px on each side.
+      Cover = 2 of 8 grid columns: (content - 7 gutters) / 8 * 2 + 1 gutter.
+      Laptop release content = page - 16px divider inset - 8px extra inset, both sides.
+    */
+    --rn-player-overhang: 12px;
+    --rn-release-content: calc(100cqw - 2 * var(--vl-pad-big) - 2 * var(--vl-pad-tiny));
+    --rn-cover: calc((var(--rn-release-content) - 7 * var(--vl-grid-gutter)) / 4 + var(--vl-grid-gutter));
+  }
+
+  .player {
+    justify-self: start;
+    justify-content: flex-start;
+    width: calc(var(--rn-cover) + 2 * var(--rn-player-overhang));
+    padding: 12px;
+  }
+
+  .player {
+    position: relative;
+  }
+
+  .player__cover,
+  .player__title,
+  .player__toggle {
+    display: block;
+  }
+
+  .dock__volume,
+  .tabbar-wrap {
+    display: none;
+  }
+
+  .toolbar,
+  .controls {
+    display: flex;
+  }
+}
+
+/* ═════════ Desktop ≥1281 ═════════ */
+
+@media (min-width: 1281px) {
+  .rn {
+    --rn-dock-space: 68px;
+  }
+
+  /* Header: logo | links + search | user (aligned with the sidebar) */
+  .header__inner {
+    border-left: 1px solid var(--vl-outline-secondary);
+  }
+
+  .header__brand {
+    width: auto;
+  }
+
+  .header__main {
+    padding: 0 var(--vl-pad-big);
+    border-right: 1px solid var(--vl-outline-secondary);
+  }
+
+  .header__search {
+    gap: 12px;
+  }
+
+  .header__search-label {
+    display: inline;
+  }
+
+  .header__user {
+    width: var(--vl-sidebar-width);
+    padding: 0 var(--vl-pad-big);
+    border-right: 1px solid var(--vl-outline-secondary);
+  }
+
+  /* Desktop: the whole user cell (avatar, name, balance, burger) is the toggle */
+  .header__profile {
+    flex: 1;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .header__user-info {
+    display: flex;
+  }
+
+  /* Content + sidebar */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--vl-sidebar-width);
+    border-right: 1px solid var(--vl-outline-secondary);
+    border-left: 1px solid var(--vl-outline-secondary);
+  }
+
+  /* Desktop: divider and content both inset 24 */
+  .release {
+    margin: 0 var(--vl-pad-big);
+    padding: var(--vl-pad-large) 0;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: var(--vl-header-height);
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--vl-header-height));
+    border-left: 1px solid var(--vl-outline-secondary);
+  }
+
+  /* Dock: only the player and filters, inside the content column */
+  .dock__inner {
+    grid-template-columns: 1fr auto 1fr var(--vl-sidebar-width);
+    grid-template-areas: "player filters . .";
+    /* 1px container border + 24px release inset - 12px overhang */
+    padding: 0 0 max(12px, env(safe-area-inset-bottom)) calc(1px + var(--vl-pad-big) - var(--rn-player-overhang));
+
+    /* Desktop release content = container - 2 borders - sidebar - 24px inset both sides */
+    --rn-release-content: calc(
+      min(100cqw, var(--vl-container-max)) - 2px - var(--vl-sidebar-width) - 2 * var(--vl-pad-big)
+    );
+
+    /* Navigation lives in the sidebar here: nothing moves on scroll */
+    --rn-filters-drop: 0px;
+    --rn-side-drop: 0px;
+  }
+
+  .toolbar,
+  .controls {
+    display: none;
+  }
+}
+
+/* ═════════ Menu on tablet / laptop / desktop ═════════
+   Figma "Tablet/Laptop/Desktop - Navigation 02-2": the menu stops being full-screen
+   and becomes a panel on the right under the header, over a dimmed page.
+   320 wide on tablet + laptop, desktop = the sidebar column. No bottom padding:
+   the last group's own padding is enough.
+*/
+@media (min-width: 480px) {
+  .sheet {
+    bottom: auto;
+    left: auto;
+    width: 320px;
+    max-height: calc(100dvh - var(--vl-header-height));
+  }
+
+  .sheet__body--menu {
+    padding-bottom: 0;
+  }
+}
+
+@media (min-width: 1281px) {
+  /* Right edge of the 1600px container (= the sidebar column) */
+  .sheet {
+    right: max(0px, calc((100% - var(--vl-container-max)) / 2));
+    width: var(--vl-sidebar-width);
+  }
+}
+
+/* ═════════ Touch devices in the laptop range (835–1280) ═════════
+   The laptop toolbar shows labels only on hover, which touch screens don't have
+   (e.g. iPad in landscape). Use the tablet tab bar + More menu there instead.
+   Desktop (≥1281) keeps the sidebar: it has icons and labels already. */
+@media (min-width: 835px) and (max-width: 1280.98px) and (hover: none) and (pointer: coarse) {
+  .toolbar {
+    display: none;
+  }
+
+  .tabbar-wrap {
+    display: block;
+    grid-area: toolbar;
+  }
+
+  .dock__inner {
+    /* The tab bar row is 56px: Filters drops to the centre line of the player row (as on tablet) */
+    --rn-filters-drop: calc(var(--rn-dock-button) / 2 + 12px + var(--rn-tabbar-height) / 2);
+  }
+}
