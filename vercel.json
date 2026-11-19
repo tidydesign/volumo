@@ -1,5 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/responsive-navigation", "destination": "/responsive-navigation-a", "permanent": false },
+    { "source": "/responsive-navigation/", "destination": "/responsive-navigation-a", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/:name([\\w-]+)", "destination": "/prototypes/:name/index.html" },
     { "source": "/:name([\\w-]+)/", "destination": "/prototypes/:name/index.html" }
