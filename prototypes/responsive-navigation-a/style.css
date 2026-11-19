@@ -1311,7 +1311,7 @@
 }
 
 /*
-  "More" menu (Figma "Mobile - Open 01"): the whole sidebar menu in a floating
+  "More" menu (Figma "Mobile - Open 01/02"): the whole sidebar menu in a floating
   panel, exactly as wide as the tab bar, 8px above it. Padding 8, gap 8,
   items 48px tall with 12px side padding, "Share feedback" as a full-width pill.
 */
@@ -1489,7 +1489,20 @@
   opacity: 0.72;
 }
 
-/* Open: More turns into Close (highlighted), the other tabs go grey */
+/*
+  Open (Figma "Mobile - Open 02"): the bar turns into one centred "✕ Close" button.
+  The tabs (More included) fade out; Close fades in and rises from one text line
+  (16px) lower. It covers the whole bar, so the whole bar closes the menu.
+  Closing plays the same in reverse (transitions).
+*/
+.tabbar__item:not(.tabbar__more),
+.tabbar__more-state {
+  transition:
+    opacity var(--duration-menu) var(--ease-out-quad),
+    transform var(--duration-menu) var(--ease-out-quad),
+    visibility 0s linear var(--duration-menu);
+}
+
 .tabbar__more-state {
   display: flex;
   flex-direction: column;
@@ -1497,22 +1510,39 @@
   gap: var(--vl-pad-point);
 }
 
-.tabbar__more-state--open,
-.tabbar-wrap.is-open .tabbar__more-state--closed {
-  display: none;
+/* Same type as the menu links: 12/16 medium */
+.tabbar__more-state--open {
+  position: absolute;
+  inset: 0;
+  flex-direction: row;
+  justify-content: center;
+  gap: var(--vl-pad-tiny);
+  font-size: var(--vl-text-main-size);
+  line-height: var(--vl-text-main-line);
+  font-weight: var(--vl-font-weight-medium);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--vl-text-main-line));
 }
 
 .tabbar-wrap.is-open .tabbar__more-state--open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity var(--duration-menu) var(--ease-out-quad),
+    transform var(--duration-menu) var(--ease-out-quad);
 }
 
-.tabbar-wrap.is-open .tabbar__more {
-  border-radius: var(--vl-radius-round);
-  background-color: var(--vl-action-dark);
+.tabbar-wrap.is-open :is(.tabbar__item:not(.tabbar__more), .tabbar__more-state--closed) {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.tabbar-wrap.is-open .tabbar__item:not(.tabbar__more) {
-  opacity: var(--opacity-muted);
+@media (prefers-reduced-motion: reduce) {
+  .tabbar__more-state--open {
+    transform: none;
+  }
 }
 
 /* Page dims under the open menu (Figma: #04070a at 24%); the player row fades out */
