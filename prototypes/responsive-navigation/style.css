@@ -203,8 +203,14 @@
   bottom: 0;
   left: 0;
   z-index: 35;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /*
+    The sheet only clips (for the slide-in animation); the scrolling happens in
+    .sheet__body. Touch scrolling on an element that also has clip-path is
+    unreliable in WebKit (Safari and Chrome on iOS).
+  */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background-color: var(--vl-bg-secondary);
   /* No top stroke: the header's bottom border already separates them */
   /* Slides down from under the header: clip-path reveal from the top edge, items stagger in */
@@ -227,8 +233,18 @@
 
 .sheet__body {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
+  min-height: 0;
   padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sheet__body > * {
+  flex-shrink: 0;
 }
 
 .sheet__body--profile {
