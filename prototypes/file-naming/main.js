@@ -1,5 +1,5 @@
 import { initSmoothScroll } from '/src/main.js'
-import { prefersReducedMotion } from '/src/motion.js'
+import { prefersReducedMotion, EASE, DURATION } from '/src/motion.js'
 import './style.css'
 
 const lenis = initSmoothScroll()
@@ -176,14 +176,11 @@ function renderChips(container, parts, fields, { withFormat = true, folder = fal
 /* ───────── Builder (Custom): drag to reorder, click or drag to add ───────── */
 
 function createBuilder(root, { fields, required, getParts, setParts, available, glued }) {
-  let dragKey = null
-  let dragSource = null
-
   function chip(part, { handle = true, removable = true } = {}) {
     const node = el('span', 'part')
     node.dataset.part = part
     if (handle) {
-      node.draggable = true
+      node.dataset.drag = ''
       node.append(img('drag', 16))
     } else {
       node.classList.add('part--glued')
@@ -210,9 +207,9 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
       if (gluedPart) {
         const group = el('span', 'builder__group')
         group.dataset.part = part
-        group.draggable = true
+        group.dataset.drag = ''
         const head = chip(part, { removable: part !== required })
-        head.draggable = false
+        delete head.dataset.drag
         group.append(head, chip(glued.part, { handle: false }))
         track.append(group)
       } else {
@@ -224,7 +221,7 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
     available().forEach((part) => {
       const add = el('button', 'add-chip')
       add.type = 'button'
-      add.draggable = true
+      add.dataset.drag = ''
       add.dataset.add = part
       add.append(img('plus-16', 16), el('span', 'add-chip__label', fields[part].builder))
       adds.append(add)
@@ -262,49 +259,218 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
     if (addButton) add(addButton.dataset.add)
   })
 
-  root.addEventListener('dragstart', (event) => {
-    const source = event.target.closest('[data-part][draggable="true"], [data-add]')
-    if (!source) return
-    dragKey = source.dataset.part || source.dataset.add
-    dragSource = source.dataset.add ? 'add' : 'track'
-    event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData('text/plain', dragKey)
-    requestAnimationFrame(() => source.classList.add('is-dragging'))
-  })
+  /* Pointer-based drag (mouse, touch and pen alike; native drag & drop doesn't work on touch).
+     While dragging, a dashed placeholder stands where the part will land and the other parts
+     and separators slide out of its way (FLIP: only transform and opacity are animated).
+     On release the part flies into the placeholder; released outside the field it flies back.
+     Parts in the field are dragged right away; add chips are dragged with a mouse
+     (on touch they are tapped, so swiping over them still scrolls the page). */
+  const DRAG_THRESHOLD = 6 // px before a press turns into a drag
+  const DROP_SLACK = 24 // px of forgiving drop zone around the field
+  const GHOST_SCALE = 1.04
+  let drag = null
+  let suppressClick = false
 
-  root.addEventListener('dragend', () => {
-    root.querySelectorAll('.is-dragging, .is-drop-target').forEach((node) => node.classList.remove('is-dragging', 'is-drop-target'))
-    dragKey = null
-  })
+  const motion = (duration = DURATION.fast) => ({ duration: prefersReducedMotion() ? 0 : duration * 1000, easing: EASE })
+  const trackEl = () => root.querySelector('[data-track]')
+  const trackItems = () => [...trackEl().children].filter((node) => node.dataset.part)
 
-  // Drop before the part under the pointer (or at the end)
-  const targetPart = (event) => {
-    const items = [...root.querySelectorAll('[data-track] > [data-part]')]
-    return items.find((item) => {
-      const rect = item.getBoundingClientRect()
-      const sameRow = event.clientY >= rect.top && event.clientY <= rect.bottom
-      return (sameRow && event.clientX < rect.left + rect.width / 2) || event.clientY < rect.top
+  // Re-lay the field in a new order and animate everything from where it was (FLIP)
+  function layout(order) {
+    const track = trackEl()
+    const before = new Map([...track.children].map((node) => [node, node.getBoundingClientRect()]))
+    track.getAnimations({ subtree: true }).forEach((animation) => animation.cancel())
+
+    const joints = [...track.querySelectorAll(':scope > .builder__joint')]
+    joints.forEach((joint) => joint.remove())
+    order.forEach((item, index) => {
+      if (index > 0) {
+        const joint = joints.shift() || el('span', 'builder__joint is-new', separatorSymbol())
+        track.append(joint)
+      }
+      track.append(item)
+    })
+
+    ;[...track.children].forEach((node) => {
+      if (node.classList.contains('is-new')) {
+        node.classList.remove('is-new')
+        node.animate([{ opacity: 0 }, { opacity: 1 }], motion())
+        return
+      }
+      const from = before.get(node)
+      if (!from) return
+      const to = node.getBoundingClientRect()
+      const dx = from.left - to.left
+      const dy = from.top - to.top
+      if (dx || dy) node.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], motion())
     })
   }
 
-  root.addEventListener('dragover', (event) => {
-    if (!dragKey || !event.target.closest('[data-track]')) return
-    event.preventDefault()
-    root.querySelector('[data-track]').classList.add('is-drop-target')
+  // Index among the other parts where the dragged one goes; uses layout boxes, not animated ones
+  function targetIndex(x, y) {
+    const track = trackEl()
+    const box = track.getBoundingClientRect()
+    const px = x - box.left - track.clientLeft
+    const others = trackItems().filter((node) => node !== drag.placeholder)
+    // Slightly above or below the field still counts as the first / last row
+    const rowsTop = Math.min(...others.map((node) => node.offsetTop))
+    const rowsBottom = Math.max(...others.map((node) => node.offsetTop + node.offsetHeight))
+    const py = Math.min(Math.max(y - box.top - track.clientTop, rowsTop + 1), rowsBottom - 1)
+    const index = others.findIndex((node) => {
+      const top = node.offsetTop
+      const bottom = top + node.offsetHeight
+      return py < top || (py <= bottom && px < node.offsetLeft + node.offsetWidth / 2)
+    })
+    return { others, index: index === -1 ? others.length : index }
+  }
+
+  const overTrack = (x, y) => {
+    const rect = trackEl().getBoundingClientRect()
+    return x > rect.left - DROP_SLACK && x < rect.right + DROP_SLACK && y > rect.top - DROP_SLACK && y < rect.bottom + DROP_SLACK
+  }
+
+  const sameOrder = (a, b) => a.length === b.length && a.every((node, i) => node === b[i])
+
+  function placeAt(x, y) {
+    const track = trackEl()
+    if (overTrack(x, y)) {
+      track.classList.add('is-drop-target')
+      if (!drag.placeholder) {
+        // From an add chip: a placeholder appears in the field
+        drag.placeholder = chip(drag.key, { removable: false })
+        drag.placeholder.classList.add('is-placeholder')
+      }
+      const { others, index } = targetIndex(x, y)
+      const order = [...others]
+      order.splice(index, 0, drag.placeholder)
+      if (!sameOrder(order, trackItems())) layout(order)
+    } else {
+      track.classList.remove('is-drop-target')
+      if (drag.from === 'track') {
+        // Outside the field the part goes back to where it was
+        if (!sameOrder(drag.origin, trackItems())) layout(drag.origin)
+      } else if (drag.placeholder) {
+        const order = trackItems().filter((node) => node !== drag.placeholder)
+        drag.placeholder = null
+        layout(order)
+      }
+    }
+  }
+
+  function startDrag() {
+    const rect = drag.source.getBoundingClientRect()
+    const ghost = drag.source.cloneNode(true)
+    ghost.classList.add('builder__ghost')
+    ghost.style.left = `${rect.left}px`
+    ghost.style.top = `${rect.top}px`
+    ghost.style.width = `${rect.width}px`
+    document.body.append(ghost)
+    drag.ghost = ghost
+    drag.rect = rect
+    drag.origin = trackItems()
+    if (drag.from === 'track') {
+      drag.placeholder = drag.source
+      drag.source.classList.add('is-placeholder')
+    } else {
+      drag.source.classList.add('is-dragging')
+    }
+    document.documentElement.classList.add('is-builder-dragging')
+  }
+
+  function moveGhost(x, y) {
+    drag.ghost.style.transform = `translate(${x - drag.startX}px, ${y - drag.startY}px) scale(${GHOST_SCALE})`
+  }
+
+  function endDrag(x, y, cancelled) {
+    const current = drag
+    drag = null
+    const track = trackEl()
+    track.classList.remove('is-drop-target')
+    document.documentElement.classList.remove('is-builder-dragging')
+
+    const dropped = !cancelled && overTrack(x, y)
+    // Released outside: everything returns to where it was
+    if (!dropped && current.from === 'track' && !sameOrder(current.origin, trackItems())) layout(current.origin)
+    if (!dropped && current.from === 'add' && current.placeholder) {
+      layout(trackItems().filter((node) => node !== current.placeholder))
+      current.placeholder = null
+    }
+
+    // The ghost flies into the placeholder (or back to where it came from)
+    const target = (dropped && current.placeholder) || current.source
+    const to = target.getBoundingClientRect()
+    const flight = current.ghost.animate(
+      [
+        { transform: current.ghost.style.transform },
+        { transform: `translate(${to.left - current.rect.left}px, ${to.top - current.rect.top}px) scale(1)` },
+      ],
+      { ...motion(), fill: 'forwards' },
+    )
+
+    flight.finished.then(() => {
+      current.ghost.remove()
+      current.source.classList.remove('is-dragging', 'is-placeholder')
+      if (!dropped) return
+      if (current.from === 'add' && glued && current.key === glued.part) glued.set(true)
+      else if (current.from === 'add' && !current.placeholder) add(current.key)
+      else setParts(trackItems().map((node) => node.dataset.part))
+    })
+  }
+
+  root.addEventListener('pointerdown', (event) => {
+    if (drag || event.button !== 0 || event.target.closest('[data-remove]')) return
+    const source = event.target.closest('[data-drag]')
+    if (!source) return
+    const from = source.dataset.add ? 'add' : 'track'
+    if (from === 'add' && event.pointerType !== 'mouse') return
+    drag = { key: source.dataset.part || source.dataset.add, from, source, startX: event.clientX, startY: event.clientY, active: false, id: event.pointerId, placeholder: null }
+    try {
+      source.setPointerCapture(event.pointerId) // keep getting moves outside the part
+    } catch {
+      // no active pointer (e.g. a synthetic event): moves still bubble to the builder
+    }
+    if (event.pointerType === 'mouse') event.preventDefault() // no text selection
   })
 
-  root.addEventListener('dragleave', (event) => {
-    const track = event.target.closest('[data-track]')
-    if (track && !track.contains(event.relatedTarget)) track.classList.remove('is-drop-target')
+  root.addEventListener('pointermove', (event) => {
+    if (!drag || event.pointerId !== drag.id) return
+    if (!drag.active) {
+      if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < DRAG_THRESHOLD) return
+      drag.active = true
+      startDrag()
+    }
+    moveGhost(event.clientX, event.clientY)
+    // The mix part is always glued to the track title, so it has no place to choose
+    if (!(drag.from === 'add' && glued && drag.key === glued.part)) placeAt(event.clientX, event.clientY)
+    else trackEl().classList.toggle('is-drop-target', overTrack(event.clientX, event.clientY))
   })
 
-  root.addEventListener('drop', (event) => {
-    if (!dragKey || !event.target.closest('[data-track]')) return
-    event.preventDefault()
-    const before = targetPart(event)?.dataset.part
-    if (dragSource === 'add' && glued && dragKey === glued.part) glued.set(true)
-    else if (before !== dragKey) insertAt(dragKey, before)
-  })
+  const finish = (event) => {
+    if (!drag || event.pointerId !== drag.id) return
+    if (!drag.active) {
+      drag = null
+      return
+    }
+    // The press was a drag, not a tap on an add chip: swallow a click that follows right away.
+    // Browsers don't always send one, so drop the flag on the next tick.
+    suppressClick = true
+    setTimeout(() => (suppressClick = false))
+    endDrag(event.clientX, event.clientY, event.type === 'pointercancel')
+  }
+  root.addEventListener('pointerup', finish)
+  root.addEventListener('pointercancel', finish)
+
+  // Swallow the click that follows a drag
+  root.addEventListener(
+    'click',
+    (event) => {
+      if (!suppressClick) return
+      suppressClick = false
+      event.stopImmediatePropagation()
+      event.preventDefault()
+    },
+    true,
+  )
 
   return { render }
 }

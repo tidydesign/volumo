@@ -719,18 +719,62 @@
   gap: var(--fn-8);
   min-height: calc(var(--vl-small-button-height) + var(--fn-12));
   padding: calc(var(--fn-8) - var(--vl-line) - var(--vl-line));
+  position: relative; /* parts measure their layout position against the field */
   background-color: var(--vl-bg-secondary);
   transition: opacity var(--duration-fast) var(--ease-default);
-}
-
-.builder__track.is-drop-target {
-  outline: var(--vl-line) dashed var(--vl-outline-action);
 }
 
 .builder__group {
   display: inline-flex;
   gap: var(--fn-4);
+}
+
+/* Draggable parts: grab cursor; inside the field a touch drags the part instead of scrolling */
+[data-drag] {
   cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.builder__track [data-drag] {
+  touch-action: none;
+}
+
+.is-builder-dragging,
+.is-builder-dragging * {
+  cursor: grabbing !important;
+}
+
+/* Copy of the part that follows the pointer (moved with transform only) */
+.builder__ghost {
+  position: fixed;
+  z-index: 30;
+  margin: 0;
+  pointer-events: none;
+  box-shadow: var(--vl-shadow-floating);
+  will-change: transform;
+}
+
+/* Where the dragged part will land: an empty dashed slot of the same size */
+.builder__track .is-placeholder {
+  background-color: transparent;
+  outline: var(--vl-line) dashed var(--vl-outline-action);
+  outline-offset: calc(var(--vl-line) * -1);
+}
+
+.builder__track .is-placeholder > * {
+  opacity: 0;
+}
+
+/* Glued group: the slot is drawn around both parts */
+.builder__track .builder__group.is-placeholder > .part {
+  background-color: transparent;
+}
+
+/* Field while something is dragged over it */
+.builder__track.is-drop-target {
+  outline: var(--vl-line) solid var(--vl-outline-action);
 }
 
 .builder__joint {
@@ -749,10 +793,6 @@
   padding: var(--fn-4) var(--fn-8) var(--fn-4) var(--fn-4);
   background-color: var(--vl-action-dark);
   white-space: nowrap;
-}
-
-.part[draggable="true"] {
-  cursor: grab;
 }
 
 .part--glued {
