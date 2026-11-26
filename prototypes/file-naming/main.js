@@ -268,6 +268,7 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
   const DRAG_THRESHOLD = 6 // px before a press turns into a drag
   const DROP_SLACK = 24 // px of forgiving drop zone around the field
   const GHOST_SCALE = 1.04
+  const REORDER_MOVE = 6 // px the pointer moves after a reorder before the next one
   let drag = null
   let suppressClick = false
 
@@ -306,22 +307,55 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
     })
   }
 
-  // Index among the other parts where the dragged one goes; uses layout boxes, not animated ones
-  function targetIndex(x, y) {
+  /* New order for the pointer position, or null to keep the current one.
+     Stable with wrapping rows: the slot moves only when the pointer is over another part
+     (on the same row it has to cross that part's middle); empty space and separators keep it.
+     Uses layout boxes (offset*), not the animated ones. */
+  function orderFor(x, y) {
     const track = trackEl()
     const box = track.getBoundingClientRect()
+    const items = trackItems()
+    const ph = drag.placeholder
+    const without = items.filter((node) => node !== ph)
+    const place = (index) => {
+      const order = [...without]
+      order.splice(index, 0, ph)
+      return order
+    }
+    if (!without.length) return [ph]
+
+    const top = Math.min(...items.map((node) => node.offsetTop))
+    const bottom = Math.max(...items.map((node) => node.offsetTop + node.offsetHeight))
     const px = x - box.left - track.clientLeft
-    const others = trackItems().filter((node) => node !== drag.placeholder)
     // Slightly above or below the field still counts as the first / last row
-    const rowsTop = Math.min(...others.map((node) => node.offsetTop))
-    const rowsBottom = Math.max(...others.map((node) => node.offsetTop + node.offsetHeight))
-    const py = Math.min(Math.max(y - box.top - track.clientTop, rowsTop + 1), rowsBottom - 1)
-    const index = others.findIndex((node) => {
-      const top = node.offsetTop
-      const bottom = top + node.offsetHeight
-      return py < top || (py <= bottom && px < node.offsetLeft + node.offsetWidth / 2)
-    })
-    return { others, index: index === -1 ? others.length : index }
+    const py = Math.min(Math.max(y - box.top - track.clientTop, top + 1), bottom - 1)
+
+    const inRow = (node) => py >= node.offsetTop && py <= node.offsetTop + node.offsetHeight
+    const halfGap = 4
+    const hit = items.find((node) => inRow(node) && px >= node.offsetLeft - halfGap && px <= node.offsetLeft + node.offsetWidth + halfGap)
+
+    if (hit === ph) return null
+    const phIndex = items.indexOf(ph)
+
+    if (hit) {
+      const index = without.indexOf(hit)
+      const middle = hit.offsetLeft + hit.offsetWidth / 2
+      // New slot (from an add chip) or another row: before or after by the part's half
+      if (phIndex === -1 || ph.offsetTop !== hit.offsetTop) return place(px < middle ? index : index + 1)
+      const forward = items.indexOf(hit) > phIndex
+      if (forward && px >= middle) return place(index + 1)
+      if (!forward && px <= middle) return place(index)
+      return null
+    }
+
+    // Empty space at the end or start of a row
+    const row = items.filter(inRow)
+    if (!row.length) return null
+    const first = row[0]
+    const last = row[row.length - 1]
+    if (px > last.offsetLeft + last.offsetWidth) return last === ph ? null : place(without.indexOf(last) + 1)
+    if (px < first.offsetLeft) return first === ph ? null : place(without.indexOf(first))
+    return null
   }
 
   const overTrack = (x, y) => {
@@ -340,24 +374,37 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
         drag.placeholder = chip(drag.key, { removable: false })
         drag.placeholder.classList.add('is-placeholder')
       }
-      const { others, index } = targetIndex(x, y)
-      const order = [...others]
-      order.splice(index, 0, drag.placeholder)
-      if (!sameOrder(order, trackItems())) layout(order)
+      // After a change, wait for the pointer to move a little before deciding again
+      if (drag.lastChange && Math.hypot(x - drag.lastChange.x, y - drag.lastChange.y) < REORDER_MOVE) return
+      const order = orderFor(x, y)
+      if (order && !sameOrder(order, trackItems())) {
+        layout(order)
+        drag.lastChange = { x, y }
+      }
     } else {
       track.classList.remove('is-drop-target')
       if (drag.from === 'track') {
         // Outside the field the part goes back to where it was
-        if (!sameOrder(drag.origin, trackItems())) layout(drag.origin)
+        if (!sameOrder(drag.origin, trackItems())) {
+          layout(drag.origin)
+          drag.lastChange = null
+        }
       } else if (drag.placeholder) {
         const order = trackItems().filter((node) => node !== drag.placeholder)
         drag.placeholder = null
+        drag.lastChange = null
         layout(order)
       }
     }
   }
 
   function startDrag() {
+    // The dragged part is moved around the DOM, which drops its pointer capture: capture on the field
+    try {
+      root.setPointerCapture(drag.id)
+    } catch {
+      // no active pointer (synthetic event): window listeners still get the moves
+    }
     const rect = drag.source.getBoundingClientRect()
     const ghost = drag.source.cloneNode(true)
     ghost.classList.add('builder__ghost')
@@ -432,7 +479,7 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
     if (event.pointerType === 'mouse') event.preventDefault() // no text selection
   })
 
-  root.addEventListener('pointermove', (event) => {
+  window.addEventListener('pointermove', (event) => {
     if (!drag || event.pointerId !== drag.id) return
     if (!drag.active) {
       if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < DRAG_THRESHOLD) return
@@ -457,8 +504,8 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
     setTimeout(() => (suppressClick = false))
     endDrag(event.clientX, event.clientY, event.type === 'pointercancel')
   }
-  root.addEventListener('pointerup', finish)
-  root.addEventListener('pointercancel', finish)
+  window.addEventListener('pointerup', finish)
+  window.addEventListener('pointercancel', finish)
 
   // Swallow the click that follows a drag
   root.addEventListener(
