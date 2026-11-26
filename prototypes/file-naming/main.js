@@ -4,7 +4,13 @@ import './style.css'
 
 const lenis = initSmoothScroll()
 
-const ASSETS = '/prototypes/file-naming/assets'
+// Icons created from JS must be imported, otherwise Vite leaves them out of the build
+const ICONS = Object.fromEntries(
+  Object.entries(import.meta.glob('./assets/*.svg', { eager: true, query: '?url', import: 'default' })).map(([path, url]) => [
+    path.replace('./assets/', '').replace('.svg', ''),
+    url,
+  ]),
+)
 
 /* ───────── Data ───────── */
 
@@ -138,7 +144,7 @@ const el = (tag, className, text) => {
 
 const img = (name, size) => {
   const node = document.createElement('img')
-  node.src = `${ASSETS}/${name}.svg`
+  node.src = ICONS[name]
   node.alt = ''
   node.width = size
   node.height = size
