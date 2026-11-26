@@ -581,8 +581,6 @@
 }
 
 .group__title {
-  float: left; /* lets <legend> take part in the flex gap */
-  width: 100%;
   font-size: var(--vl-text-large-size);
   line-height: var(--vl-text-large-line);
   font-weight: var(--vl-font-weight-medium);
