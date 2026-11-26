@@ -716,9 +716,11 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--fn-8);
+  /* Rows are spaced by the parts' own margins (not row-gap), so the empty row break
+     used while dragging adds no extra space */
+  column-gap: var(--fn-8);
   min-height: calc(var(--vl-small-button-height) + var(--fn-12));
-  padding: calc(var(--fn-8) - var(--vl-line) - var(--vl-line));
+  padding: calc(var(--fn-8) - var(--vl-line) - var(--vl-line) - var(--fn-4)) calc(var(--fn-8) - var(--vl-line) - var(--vl-line));
   position: relative; /* parts measure their layout position against the field */
   background-color: var(--vl-bg-secondary);
   transition: opacity var(--duration-fast) var(--ease-default);
@@ -770,6 +772,17 @@
 /* Glued group: the slot is drawn around both parts */
 .builder__track .builder__group.is-placeholder > .part {
   background-color: transparent;
+}
+
+.builder__track > * {
+  margin-block: var(--fn-4);
+}
+
+/* Forced row break before the slot while dragging (the slot starts the row under the finger) */
+.builder__track > .builder__break {
+  flex-basis: 100%;
+  height: 0;
+  margin: 0;
 }
 
 /* Field while something is dragged over it */
@@ -880,8 +893,11 @@
   flex: 1;
 }
 
-/* Formatting rows keep one height; the custom symbol field may overflow the padding (as in Figma) */
+/* Formatting rows keep one height and never wrap; content is centred vertically.
+   The custom symbol field may overflow the padding (as in Figma). */
 .card .option {
+  flex-wrap: nowrap;
+  align-items: center;
   height: calc(var(--vl-button-height) + var(--fn-8));
   min-height: 0;
 }
@@ -918,18 +934,40 @@
 
 .option--custom:has(input:checked) .option__hint {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
   text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option--custom .option__label {
+  white-space: nowrap;
 }
 
 .symbol-input {
+  flex-shrink: 0;
+  box-sizing: border-box;
   width: var(--vl-tag-width);
   height: calc(var(--vl-tag-height) + var(--fn-8));
+  margin: 0;
   padding: 0 var(--fn-12);
   border: var(--vl-line) solid var(--vl-outline-action);
+  border-radius: 0;
   font: inherit;
+  line-height: normal;
   text-align: center;
   color: var(--vl-content-main);
   background-color: var(--vl-bg-secondary);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Touch screens: 16px keeps iOS Safari from zooming the page when the field gets focus */
+@media (pointer: coarse) {
+  .symbol-input {
+    font-size: var(--vl-text-large-size);
+  }
 }
 
 .option__text {

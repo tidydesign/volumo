@@ -276,19 +276,23 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
   const trackEl = () => root.querySelector('[data-track]')
   const trackItems = () => [...trackEl().children].filter((node) => node.dataset.part)
 
-  // Re-lay the field in a new order and animate everything from where it was (FLIP)
-  function layout(order) {
+  /* Re-lay the field in a new order and animate everything from where it was (FLIP).
+     rowStart: the placeholder starts a new row. "End of row 1" and "start of row 2" are the same
+     spot in the order; without the break the slot would sit wherever it fits, not under the finger. */
+  function layout(order, rowStart = false) {
     const track = trackEl()
     const before = new Map([...track.children].map((node) => [node, node.getBoundingClientRect()]))
     track.getAnimations({ subtree: true }).forEach((animation) => animation.cancel())
 
     const joints = [...track.querySelectorAll(':scope > .builder__joint')]
     joints.forEach((joint) => joint.remove())
+    track.querySelector(':scope > .builder__break')?.remove()
     order.forEach((item, index) => {
       if (index > 0) {
         const joint = joints.shift() || el('span', 'builder__joint is-new', separatorSymbol())
         track.append(joint)
       }
+      if (rowStart && item === drag?.placeholder && index > 0) track.append(el('span', 'builder__break'))
       track.append(item)
     })
 
@@ -317,12 +321,12 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
     const items = trackItems()
     const ph = drag.placeholder
     const without = items.filter((node) => node !== ph)
-    const place = (index) => {
+    const place = (index, rowStart = false) => {
       const order = [...without]
       order.splice(index, 0, ph)
-      return order
+      return { order, rowStart }
     }
-    if (!without.length) return [ph]
+    if (!without.length) return place(0)
 
     const top = Math.min(...items.map((node) => node.offsetTop))
     const bottom = Math.max(...items.map((node) => node.offsetTop + node.offsetHeight))
@@ -337,14 +341,19 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
     if (hit === ph) return null
     const phIndex = items.indexOf(ph)
 
+    // Going before the first part of a row keeps the slot on that row
+    const firstInRow = (node) => !without.some((other) => other.offsetTop === node.offsetTop && other.offsetLeft < node.offsetLeft)
+
     if (hit) {
       const index = without.indexOf(hit)
       const middle = hit.offsetLeft + hit.offsetWidth / 2
       // New slot (from an add chip) or another row: before or after by the part's half
-      if (phIndex === -1 || ph.offsetTop !== hit.offsetTop) return place(px < middle ? index : index + 1)
+      if (phIndex === -1 || ph.offsetTop !== hit.offsetTop) {
+        return px < middle ? place(index, firstInRow(hit)) : place(index + 1)
+      }
       const forward = items.indexOf(hit) > phIndex
       if (forward && px >= middle) return place(index + 1)
-      if (!forward && px <= middle) return place(index)
+      if (!forward && px <= middle) return place(index, firstInRow(hit))
       return null
     }
 
@@ -354,7 +363,7 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
     const first = row[0]
     const last = row[row.length - 1]
     if (px > last.offsetLeft + last.offsetWidth) return last === ph ? null : place(without.indexOf(last) + 1)
-    if (px < first.offsetLeft) return first === ph ? null : place(without.indexOf(first))
+    if (px < first.offsetLeft) return first === ph ? null : place(without.indexOf(first), true)
     return null
   }
 
@@ -376,9 +385,10 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
       }
       // After a change, wait for the pointer to move a little before deciding again
       if (drag.lastChange && Math.hypot(x - drag.lastChange.x, y - drag.lastChange.y) < REORDER_MOVE) return
-      const order = orderFor(x, y)
-      if (order && !sameOrder(order, trackItems())) {
-        layout(order)
+      const next = orderFor(x, y)
+      const hasBreak = drag.placeholder.previousElementSibling?.classList.contains('builder__break') ?? false
+      if (next && (!sameOrder(next.order, trackItems()) || next.rowStart !== hasBreak)) {
+        layout(next.order, next.rowStart)
         drag.lastChange = { x, y }
       }
     } else {
@@ -442,6 +452,8 @@ function createBuilder(root, { fields, required, getParts, setParts, available, 
       layout(trackItems().filter((node) => node !== current.placeholder))
       current.placeholder = null
     }
+    // The row break was only a drag hint: let the slot settle where the part really ends up
+    if (dropped && track.querySelector(':scope > .builder__break')) layout(trackItems())
 
     // The ghost flies into the placeholder (or back to where it came from)
     const target = (dropped && current.placeholder) || current.source
