@@ -1,0 +1,1442 @@
+/*
+  File naming — Volumo UI 2.0 (Figma page "File Naming")
+  Mobile-first. Breakpoints: Tablet ≥640, Laptop ≥1200.
+  Mobile + tablet: compact header, account menu folded into a selector, one column.
+  Laptop: full header, account column on the left, personal sidebar on the right.
+*/
+
+.fn {
+  --fn-head-height: var(--vl-header-height);
+  /* This page uses fixed spacing in Figma (no per-device modes) */
+  --fn-4: var(--space-2xs);
+  --fn-8: var(--space-xs);
+  --fn-12: calc(var(--space-xs) + var(--space-2xs));
+  --fn-16: var(--space-s);
+  --fn-24: var(--space-m);
+  --fn-32: calc(var(--space-m) + var(--space-xs));
+  --fn-gutter: var(--fn-16);
+  --fn-reveal-offset: -8px; /* builder slides down from here */
+
+  font-family: var(--vl-font-family);
+  font-size: var(--vl-text-main-size);
+  line-height: var(--vl-text-main-line);
+  font-weight: var(--vl-font-weight-medium);
+  color: var(--vl-content-main);
+  background-color: var(--vl-bg-main);
+}
+
+.fn a {
+  text-decoration: none;
+}
+
+:where(.fn) button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.fn ul,
+.fn ol {
+  list-style: none;
+}
+
+.fn fieldset {
+  border: 0;
+  min-width: 0;
+}
+
+.fn img {
+  flex-shrink: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: var(--vl-line);
+  height: var(--vl-line);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.icon-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.icon-btn:hover,
+.head__nav-link:hover,
+.head__search:hover,
+.head__user:hover,
+.crumbs__link:hover,
+.account__link:hover,
+.sidebar__link:hover,
+.playlist:hover,
+.link-btn:hover,
+.add-chip:hover,
+.part__remove:hover {
+  opacity: 0.72;
+}
+
+.fn :focus-visible {
+  outline: 2px solid var(--vl-action-primary);
+  outline-offset: 2px;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: var(--fn-4);
+  height: var(--fn-4);
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-basic-grey);
+}
+
+/* ───────── Buttons ───────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fn-8);
+  height: var(--vl-button-height);
+  padding: var(--fn-12) var(--fn-24) var(--fn-12) var(--fn-16);
+  font-weight: var(--vl-font-weight-semibold);
+  color: var(--vl-basic-white);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.btn:hover {
+  opacity: 0.88;
+}
+
+.btn--primary {
+  background-color: var(--vl-action-primary);
+}
+
+.btn--black {
+  background-color: var(--vl-action-black);
+}
+
+.btn--wide {
+  width: 100%;
+}
+
+.link-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--fn-8);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.link-btn__label,
+.link-btn {
+  font-weight: var(--vl-font-weight-medium);
+}
+
+.is-spinning {
+  animation: fn-spin var(--duration-slow) var(--ease-default);
+}
+
+@keyframes fn-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* ───────── Switch (Figma "Selectors/Switch") ───────── */
+
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--vl-switch-width);
+  height: var(--vl-switch-height);
+  border-radius: var(--vl-radius-pill);
+  background-color: var(--vl-action-neutral);
+  overflow: hidden;
+}
+
+.switch[aria-checked="true"] {
+  background-color: var(--vl-action-green);
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: calc((var(--vl-switch-height) - var(--vl-switch-knob-height)) / 2);
+  left: calc((var(--vl-switch-height) - var(--vl-switch-knob-height)) / 2);
+  width: var(--vl-switch-knob-width);
+  height: var(--vl-switch-knob-height);
+  border-radius: var(--vl-radius-pill);
+  background-color: var(--vl-basic-white);
+  transition: transform var(--duration-fast) var(--ease-default);
+}
+
+.switch[aria-checked="true"]::after {
+  transform: translateX(calc(var(--vl-switch-width) - var(--vl-switch-knob-width) - var(--vl-switch-height) + var(--vl-switch-knob-height)));
+}
+
+/* ───────── Radio (Figma "Radio Button": 12×16 frame with a circle) ───────── */
+
+.radio {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.radio__on,
+:checked + .radio .radio__off {
+  display: none;
+}
+
+:checked + .radio .radio__on {
+  display: block;
+}
+
+/* ───────── Tags and chip previews ───────── */
+
+.tag {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: var(--vl-tag-height);
+  padding: 0 var(--fn-8);
+  border: var(--vl-line) solid var(--vl-outline-action);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+  white-space: nowrap;
+}
+
+.tag--fixed {
+  width: var(--vl-tag-width);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fn-4);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+}
+
+.chips__joint {
+  white-space: pre;
+}
+
+/* ───────── Header (Figma "Organisms/Page Elements/Head") ───────── */
+
+.head {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--fn-head-height);
+  border-bottom: var(--vl-line) solid var(--vl-outline-secondary);
+  background-color: var(--vl-bg-secondary);
+}
+
+.head__inner {
+  display: flex;
+  height: 100%;
+}
+
+.head__brand {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--fn-gutter);
+  border-right: var(--vl-line) solid var(--vl-outline-secondary);
+}
+
+.head__main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 0 var(--fn-gutter);
+}
+
+.head__nav,
+.head__search-label,
+.head__user-info {
+  display: none;
+}
+
+.head__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-24);
+}
+
+.head__search,
+.head__user {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-8);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.head__avatar {
+  width: var(--vl-avatar-size);
+  height: var(--vl-avatar-size);
+  border-radius: var(--vl-radius-pill);
+  object-fit: cover;
+}
+
+/* ───────── Page frame ───────── */
+
+.page {
+  display: flex;
+}
+
+.page__main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Breadcrumbs */
+
+.crumbs {
+  margin: 0 var(--fn-gutter);
+  border-bottom: var(--vl-line) solid var(--vl-outline-main);
+}
+
+.crumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fn-8);
+  min-height: var(--vl-button-height);
+}
+
+.crumbs__list li {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-8);
+}
+
+.crumbs__list li + li::before {
+  content: "";
+  width: var(--fn-4);
+  height: var(--fn-4);
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-neutral);
+}
+
+.crumbs__link {
+  color: var(--vl-action-neutral);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+/* ───────── Account column ───────── */
+
+.account {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--fn-24);
+}
+
+.account__top {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fn-16);
+  padding: var(--fn-gutter);
+  border-bottom: var(--vl-line) solid var(--vl-outline-main);
+  margin: 0 var(--fn-gutter);
+  padding-inline: 0;
+}
+
+.profile__avatar {
+  width: var(--vl-avatar-size-large);
+  height: var(--vl-avatar-size-large);
+  border-radius: var(--vl-radius-round);
+  object-fit: cover;
+}
+
+.profile__name {
+  font-size: var(--vl-text-large-size);
+  line-height: var(--vl-text-large-line);
+  text-align: center;
+}
+
+.profile__stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-8);
+  width: 100%;
+}
+
+.profile__numbers {
+  display: flex;
+  height: var(--vl-button-height);
+  border-block: var(--vl-line) solid var(--vl-outline-main);
+}
+
+.profile__number {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--vl-text-large-size);
+  line-height: var(--vl-text-large-line);
+}
+
+.profile__number + .profile__number {
+  border-left: var(--vl-line) solid var(--vl-outline-main);
+}
+
+.profile__discount {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--fn-24);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+}
+
+/* Mobile + tablet: "File naming ≡" selector opens the account menu */
+.account__select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fn-12);
+  height: var(--vl-button-height);
+  margin: var(--fn-gutter) var(--fn-gutter) 0;
+  padding: var(--fn-12) var(--fn-12) var(--fn-12) var(--fn-16);
+  background-color: var(--vl-action-black);
+}
+
+.account__select-label {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-8);
+}
+
+.account__nav {
+  display: none;
+  margin: 0 var(--fn-gutter);
+  background-color: var(--vl-bg-secondary);
+}
+
+.account--open .account__nav {
+  display: block;
+  animation: fn-reveal var(--duration-base) var(--ease-default);
+}
+
+.account__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-4);
+  padding: var(--fn-12) 0;
+}
+
+.account__link {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-8);
+  padding: var(--fn-12);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.account__link--active {
+  background-color: var(--vl-action-black);
+}
+
+.account__panel {
+  display: none;
+}
+
+/* ───────── Settings ───────── */
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-32);
+  min-width: 0;
+  padding: var(--fn-gutter);
+}
+
+.settings__tabs {
+  display: flex;
+  gap: var(--fn-4);
+  padding-bottom: var(--fn-32);
+  border-bottom: var(--vl-line) solid var(--vl-outline-main);
+}
+
+.square-tab {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: var(--vl-button-height);
+  padding: 0 var(--fn-24);
+  background-color: var(--vl-action-black);
+  white-space: nowrap;
+}
+
+.square-tab--active {
+  color: var(--vl-action-black);
+  background-color: var(--vl-action-light);
+}
+
+.settings__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-24);
+  scroll-margin-top: var(--fn-head-height);
+}
+
+.settings__section + .settings__section {
+  padding-top: var(--fn-32);
+  border-top: var(--vl-line) solid var(--vl-outline-main);
+}
+
+.settings__title {
+  font-family: var(--vl-font-family-title);
+  font-size: var(--vl-title-h3-size);
+  line-height: var(--vl-title-h3-line);
+  font-weight: var(--vl-font-weight-black);
+  font-variation-settings: var(--vl-title-variation);
+  text-transform: uppercase;
+}
+
+.settings__groups {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--fn-32);
+}
+
+.settings__groups > * {
+  width: 100%;
+}
+
+.settings__groups > .settings__save {
+  width: auto;
+}
+
+/* Example bar */
+
+/* Sticks under the header while File naming is on screen (Figma "Formating Settings 01");
+   the section is its containing block, so it leaves with the section.
+   The shadow is a backdrop that hides the rows scrolling in the gap above it. */
+.example {
+  position: sticky;
+  top: calc(var(--fn-head-height) + var(--fn-24));
+  z-index: 5;
+  box-shadow: 0 calc(var(--fn-24) * -1) 0 var(--vl-bg-main);
+  display: flex;
+  align-items: center;
+  gap: var(--fn-24);
+  padding: var(--fn-12) var(--fn-24) var(--fn-12) var(--fn-16);
+  border: var(--vl-line) solid var(--vl-outline-secondary);
+  background-color: var(--vl-bg-secondary);
+}
+
+.example__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fn-8);
+  min-width: 0;
+}
+
+.example__caption {
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+}
+
+.example__name {
+  overflow-wrap: anywhere;
+}
+
+/* Mobile: Randomize is icon-only */
+.example .link-btn {
+  font-size: 0;
+}
+
+/* Groups */
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-16);
+}
+
+.group__title {
+  float: left; /* lets <legend> take part in the flex gap */
+  width: 100%;
+  font-size: var(--vl-text-large-size);
+  line-height: var(--vl-text-large-line);
+  font-weight: var(--vl-font-weight-medium);
+}
+
+.group__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-8);
+}
+
+/* ───────── File name presets ───────── */
+
+.presets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-8);
+}
+
+.preset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-24);
+  padding: var(--fn-12);
+  background-color: var(--vl-bg-secondary);
+}
+
+.preset__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--fn-12);
+  row-gap: var(--fn-12);
+  cursor: pointer;
+}
+
+.preset__icon {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--vl-icon-circle);
+  height: var(--vl-icon-circle);
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-bg-main);
+}
+
+.preset__check {
+  display: none;
+}
+
+.preset__name {
+  flex: 1;
+  font-weight: var(--vl-font-weight-semibold);
+}
+
+/* Mobile: the structure goes under the name */
+.preset__head .chips {
+  flex-basis: 100%;
+}
+
+.preset__head .chips:empty,
+.preset--custom:not(:has(.preset__head input:checked)) .chips {
+  display: none;
+}
+
+.preset:has(.preset__head input:checked) {
+  background-color: var(--vl-action-black);
+}
+
+.preset:has(.preset__head input:checked) .preset__icon {
+  background-color: var(--vl-action-green);
+}
+
+.preset:has(.preset__head input:checked) .preset__icon img:not(.preset__check) {
+  display: none;
+}
+
+.preset:has(.preset__head input:checked) .preset__check {
+  display: block;
+}
+
+.preset:has(.preset__head input:checked) .chips {
+  color: var(--vl-content-main);
+}
+
+.preset:has(.preset__head input:checked) .tag:not(.tag--muted) {
+  color: var(--vl-content-main);
+}
+
+.preset:not(:has(.preset__head input:checked)):hover {
+  background-color: var(--vl-action-black);
+}
+
+.preset__head:has(input:focus-visible),
+.option:has(input:focus-visible),
+.radio-item:has(input:focus-visible) {
+  outline: 2px solid var(--vl-action-primary);
+  outline-offset: 2px;
+}
+
+/* ───────── Builder (Custom) ───────── */
+
+.builder {
+  display: none;
+  flex-direction: column;
+  gap: var(--fn-24);
+}
+
+.preset--custom:has(.preset__head input:checked) .builder,
+.option-block:has(input:checked) .builder {
+  display: flex;
+  animation: fn-reveal var(--duration-base) var(--ease-default);
+}
+
+@keyframes fn-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(var(--fn-reveal-offset));
+  }
+}
+
+.builder__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-8);
+}
+
+.builder__track {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fn-8);
+  min-height: calc(var(--vl-small-button-height) + var(--fn-12));
+  padding: calc(var(--fn-8) - var(--vl-line) - var(--vl-line));
+  background-color: var(--vl-bg-secondary);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.builder__track.is-drop-target {
+  outline: var(--vl-line) dashed var(--vl-outline-action);
+}
+
+.builder__group {
+  display: inline-flex;
+  gap: var(--fn-4);
+  cursor: grab;
+}
+
+.builder__joint {
+  white-space: pre;
+}
+
+.builder__hint {
+  color: var(--vl-action-neutral);
+}
+
+.part {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fn-4);
+  height: var(--vl-small-button-height);
+  padding: var(--fn-4) var(--fn-8) var(--fn-4) var(--fn-4);
+  background-color: var(--vl-action-dark);
+  white-space: nowrap;
+}
+
+.part[draggable="true"] {
+  cursor: grab;
+}
+
+.part--glued {
+  padding-left: var(--fn-8);
+}
+
+.part__label {
+  padding: 0 var(--fn-4);
+}
+
+.part__remove {
+  display: inline-flex;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.is-dragging {
+  opacity: 0.4;
+}
+
+.builder__adds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fn-4);
+}
+
+.add-chip {
+  display: inline-flex;
+  align-items: center;
+  height: var(--vl-small-button-height);
+  padding: 0 var(--fn-8) 0 var(--fn-4);
+  border: var(--vl-line) solid var(--vl-outline-action);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.add-chip__label {
+  padding: 0 var(--fn-4);
+}
+
+/* ───────── Formatting settings ───────── */
+
+.formatting {
+  display: grid;
+  gap: var(--fn-8);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-line);
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-12);
+  padding: var(--fn-12);
+  background-color: var(--vl-bg-secondary);
+  font-weight: var(--vl-font-weight-semibold);
+}
+
+.card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--vl-icon-circle);
+  height: var(--vl-icon-circle);
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-bg-main);
+}
+
+/* A selectable row: radio + label (+ example on the right) */
+.option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fn-8);
+  min-height: calc(var(--vl-button-height) + var(--fn-8));
+  padding: var(--fn-16);
+  background-color: var(--vl-bg-secondary);
+  cursor: pointer;
+}
+
+.option__label {
+  flex: 1;
+}
+
+/* Formatting rows keep one height; the custom symbol field may overflow the padding (as in Figma) */
+.card .option {
+  height: calc(var(--vl-button-height) + var(--fn-8));
+  min-height: 0;
+}
+
+.option:has(input:checked) {
+  background-color: var(--vl-action-black);
+}
+
+.option:has(input:checked) .tag {
+  color: var(--vl-content-main);
+}
+
+.option:not(:has(input:checked)):hover {
+  background-color: var(--vl-action-black);
+}
+
+.option__hint {
+  color: var(--vl-content-secondary);
+}
+
+.option__hint,
+.option .symbol-input {
+  display: none;
+}
+
+.option--custom:has(input:checked) .option__hint,
+.option--custom:has(input:checked) .symbol-input {
+  display: block;
+}
+
+.option--custom:has(input:checked) .option__label {
+  flex: 0 1 auto;
+}
+
+.option--custom:has(input:checked) .option__hint {
+  flex: 1;
+  text-align: right;
+}
+
+.symbol-input {
+  width: var(--vl-tag-width);
+  height: calc(var(--vl-tag-height) + var(--fn-8));
+  padding: 0 var(--fn-12);
+  border: var(--vl-line) solid var(--vl-outline-action);
+  font: inherit;
+  text-align: center;
+  color: var(--vl-content-main);
+  background-color: var(--vl-bg-secondary);
+}
+
+.option__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fn-4);
+}
+
+.option__hint-line {
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+}
+
+.option--tall {
+  align-items: flex-start;
+}
+
+.option--tall .tag {
+  align-self: center;
+}
+
+/* Mobile: folder name structure goes under the label */
+.chips--end {
+  flex-basis: 100%;
+}
+
+/* Switch row (Keep (Original Mix), Include cover) */
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-12);
+  padding: var(--fn-16);
+  background-color: var(--vl-bg-secondary);
+}
+
+.toggle-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fn-4);
+}
+
+.toggle-row__hint {
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+}
+
+/* ───────── Folders ───────── */
+
+.folders {
+  display: grid;
+  gap: var(--fn-8);
+}
+
+.folders__controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-8);
+  min-width: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-line);
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-32);
+  padding: var(--fn-16);
+  background-color: var(--vl-bg-secondary);
+}
+
+.panel__title {
+  flex: 1;
+  font-size: var(--vl-text-large-size);
+  line-height: var(--vl-text-large-line);
+  font-weight: var(--vl-font-weight-medium);
+}
+
+.panel__body,
+.panel__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vl-line);
+}
+
+.panel__body[hidden],
+.panel__options[hidden],
+.panel__note[hidden] {
+  display: none;
+}
+
+.panel__row {
+  padding: var(--fn-16);
+  background-color: var(--vl-bg-secondary);
+}
+
+.panel__note {
+  padding: var(--fn-24) var(--fn-16);
+  background-color: var(--vl-bg-secondary);
+  color: var(--vl-content-secondary);
+  animation: fn-reveal var(--duration-base) var(--ease-default);
+}
+
+.panel__note--main {
+  color: var(--vl-content-main);
+}
+
+.panel__radios {
+  gap: var(--fn-16);
+  padding: var(--fn-16);
+  background-color: var(--vl-bg-secondary);
+}
+
+.radio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fn-8);
+  cursor: pointer;
+}
+
+.option-block {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--vl-bg-secondary);
+}
+
+.option-block:has(input:checked) {
+  background-color: var(--vl-action-black);
+}
+
+.option-block .option {
+  background-color: transparent;
+}
+
+.option-block .builder {
+  padding: 0 var(--fn-16) var(--fn-16);
+}
+
+/* Pill tabs (Figma "Selectors/Tabs/Rounded") */
+
+.pill-tabs {
+  display: flex;
+  gap: var(--fn-4);
+}
+
+.pill-tab {
+  flex: 1;
+  padding: var(--fn-8) var(--fn-16);
+  border-radius: var(--vl-radius-pill);
+  background-color: var(--vl-action-dark);
+  font-weight: var(--vl-font-weight-semibold);
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.pill-tab:not(.pill-tab--active):hover {
+  opacity: 0.72;
+}
+
+.pill-tab--active {
+  color: var(--vl-action-black);
+  background-color: var(--vl-action-light);
+}
+
+/* Example tree */
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-12);
+  min-width: 0;
+  padding: var(--fn-16);
+  border: var(--vl-line) solid var(--vl-outline-secondary);
+  background-color: var(--vl-bg-secondary);
+}
+
+.tree__list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fn-12);
+}
+
+.tree__folder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-12);
+}
+
+.tree__folder-name,
+.tree__file,
+.tree__zip {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-8);
+}
+
+.tree__files {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-12);
+  padding-left: var(--fn-24);
+}
+
+.tree__file {
+  color: var(--vl-content-secondary);
+}
+
+.tree__file--flat {
+  color: var(--vl-content-main);
+}
+
+.tree__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tree__zip {
+  padding-top: var(--fn-12);
+  border-top: var(--vl-line) solid var(--vl-outline-secondary);
+  color: var(--vl-content-secondary);
+}
+
+/* ───────── Personal sidebar (laptop+) ───────── */
+
+.sidebar {
+  display: none;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-4);
+  padding: var(--fn-12);
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: calc(var(--vl-button-height) - var(--fn-4));
+  padding: var(--fn-12);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.sidebar__label {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-8);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fn-8);
+  padding: var(--fn-4) var(--fn-12);
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-dark);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+}
+
+.pill:has(.pill__badge) {
+  padding-left: var(--fn-4);
+}
+
+.pill__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fn-24);
+  height: var(--vl-icon-size-small);
+  border-radius: var(--vl-radius-round);
+  background-color: var(--vl-action-green);
+  color: var(--vl-bg-secondary);
+}
+
+.sidebar__playlists {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fn-12);
+  padding: var(--fn-12) var(--fn-16);
+}
+
+.sidebar__playlists-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--fn-8);
+  border-bottom: var(--vl-line) solid var(--vl-outline-secondary);
+}
+
+.sidebar__playlists-title {
+  font-size: var(--vl-text-main-size);
+  line-height: var(--vl-text-main-line);
+  font-weight: var(--vl-font-weight-medium);
+  color: var(--vl-content-secondary);
+}
+
+.sidebar__playlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-12);
+}
+
+.playlist {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-12);
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.playlist__cover {
+  width: var(--vl-icon-circle);
+  height: var(--vl-icon-circle);
+  object-fit: cover;
+}
+
+.playlist__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fn-4);
+}
+
+.playlist__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-8);
+  font-size: var(--vl-text-secondary-size);
+  line-height: var(--vl-text-secondary-line);
+  color: var(--vl-content-secondary);
+}
+
+.sidebar__settings {
+  display: flex;
+  align-items: center;
+  gap: var(--fn-24);
+  height: var(--fn-head-height);
+  padding: 0 var(--fn-24);
+  border-top: var(--vl-line) solid var(--vl-outline-main);
+}
+
+.volume-bar {
+  display: flex;
+  flex: 1;
+  gap: calc(var(--vl-line) * 2);
+  height: var(--fn-4);
+}
+
+.volume-bar__level {
+  flex: 1;
+  background-color: var(--vl-action-neutral);
+}
+
+.volume-bar__rest {
+  width: var(--vl-button-height);
+  background-color: var(--vl-action-dark-hover);
+}
+
+.sidebar__settings-actions {
+  display: flex;
+  gap: var(--fn-12);
+}
+
+/* ───────── Tablet ≥640 ───────── */
+
+@media (min-width: 640px) {
+  .fn {
+    --fn-gutter: var(--fn-24);
+  }
+
+  .square-tab {
+    flex: 0 0 auto;
+  }
+
+  .example .link-btn {
+    font-size: inherit;
+  }
+
+  /* Structure sits on the right of the preset name */
+  .preset__head {
+    flex-wrap: nowrap;
+  }
+
+  .preset__head .chips {
+    flex-basis: auto;
+    justify-content: flex-end;
+  }
+
+  .option {
+    flex-wrap: nowrap;
+  }
+
+  .chips--end {
+    flex-basis: auto;
+    justify-content: flex-end;
+  }
+
+  .formatting,
+  .folders {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .profile {
+    max-width: calc(var(--vl-sidebar-width) * 1.5);
+    margin-inline: auto;
+  }
+}
+
+/* ───────── Laptop ≥1200 ───────── */
+
+@media (min-width: 1200px) {
+  .head__brand {
+    padding: 0 var(--fn-24);
+  }
+
+  .head__catalog {
+    display: none;
+  }
+
+  .head__main {
+    padding: 0;
+  }
+
+  .head__nav {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-width: 0;
+    height: 100%;
+    padding-left: var(--fn-24);
+  }
+
+  .head__nav-list {
+    display: flex;
+    gap: var(--vl-pad-extra-large);
+  }
+
+  .head__nav-link {
+    white-space: nowrap;
+    transition: opacity var(--duration-fast) var(--ease-default);
+  }
+
+  .head__actions {
+    display: contents;
+  }
+
+  /* Search closes the links cell */
+  .head__search {
+    gap: var(--fn-12);
+    height: 100%;
+    padding: 0 var(--fn-24);
+    border-right: var(--vl-line) solid var(--vl-outline-secondary);
+  }
+
+  .head__search-label {
+    display: inline;
+  }
+
+  .head__user {
+    gap: var(--fn-12);
+    width: var(--vl-sidebar-width);
+    height: 100%;
+    padding: 0 var(--fn-24);
+    text-align: left;
+  }
+
+  .head__user-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .head__user-balance {
+    color: var(--vl-content-secondary);
+  }
+
+  .page__body {
+    display: flex;
+  }
+
+  /* Account column: runs the full page height; the profile + menu stick under the header,
+     the panel button sticks to the bottom of the screen (independent of the breadcrumbs) */
+  .account {
+    flex-shrink: 0;
+    width: var(--vl-sidebar-width);
+    padding: var(--fn-24);
+    border-right: var(--vl-line) solid var(--vl-outline-main);
+  }
+
+  .account__top {
+    position: sticky;
+    top: calc(var(--fn-head-height) + var(--fn-24));
+    gap: var(--fn-24);
+  }
+
+  .account__panel {
+    position: sticky;
+    bottom: var(--fn-24);
+    margin-top: auto;
+  }
+
+  .profile {
+    margin: 0;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .account__select {
+    display: none;
+  }
+
+  .account__nav,
+  .account--open .account__nav {
+    display: block;
+    margin: 0;
+    border-top: var(--vl-line) solid var(--vl-outline-main);
+    background-color: transparent;
+    animation: none;
+  }
+
+  .account__panel {
+    display: inline-flex;
+  }
+
+  .settings {
+    flex: 1;
+    padding: var(--fn-24);
+  }
+
+  .sidebar {
+    position: sticky;
+    top: var(--fn-head-height);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: var(--vl-sidebar-width);
+    height: calc(100vh - var(--fn-head-height));
+    border-left: var(--vl-line) solid var(--vl-outline-main);
+  }
+}

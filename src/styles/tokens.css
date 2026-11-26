@@ -31,6 +31,7 @@
   --ease-default: cubic-bezier(.16, 1, .3, 1);
   --duration-fast: 400ms;
   --duration-base: 550ms;
+  --duration-slow: 700ms;
   /* Hover reveals (e.g. toolbar labels) */
   --ease-out: ease-out;
   --duration-hover: 300ms;
@@ -98,6 +99,10 @@
   --vl-text-large-line: 20px;
   --vl-title-h3-size: 20px;
   --vl-title-h3-line: 20px;
+  /* Headers/H3: Roboto Flex Black, wide (other axes are at their defaults) */
+  --vl-font-family-title: "Roboto Flex", "Inter", system-ui, sans-serif;
+  --vl-font-weight-black: 900;
+  --vl-title-variation: "wdth" 148, "opsz" 144;
 
   /* Paddings / Elements (mobile + tablet mode) */
   --vl-pad-zero: 0px;
@@ -111,7 +116,19 @@
 
   /* Fixed sizes */
   --vl-icon-size: 20px;
+  --vl-icon-size-small: 16px;
+  --vl-icon-circle: 36px; /* round icon holder in setting rows */
+  --vl-avatar-size: 32px;
+  --vl-avatar-size-large: 96px;
+  --vl-button-height: 48px;
   --vl-small-button-height: 28px;
+  --vl-tag-height: 24px;
+  --vl-tag-width: 56px; /* fixed-width symbol examples (A - B) */
+  --vl-switch-width: 48px;
+  --vl-switch-height: 20px;
+  --vl-switch-knob-width: 24px;
+  --vl-switch-knob-height: 16px;
+  --vl-line: 1px;
   --vl-header-height: 60px;
   --vl-sidebar-width: 288px;
   --vl-container-max: 1600px;
